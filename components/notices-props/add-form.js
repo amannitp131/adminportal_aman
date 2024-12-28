@@ -19,7 +19,8 @@ import { administrationList } from '@/lib/const'
 import { BroadcastMail } from './../common-props/send-broadcast-mail'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const [content, setContent] = useState({
         title: '',
         openDate: '',

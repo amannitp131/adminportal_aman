@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import { useSession } from 'next-auth/client';
+import { useSession } from 'next-auth/react';
 import React, { useState, useCallback } from 'react';
 
 export const EditForm = ({ data, handleClose, modal }) => {

@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import { Delete } from '@material-ui/icons'
 import { FormControlLabel, Checkbox } from '@material-ui/core'
-import { randomBytes } from 'crypto'
+
 
 export const AddAttachments = ({ attachments, setAttachments, limit }) => {
     function handleChange(i, event) {

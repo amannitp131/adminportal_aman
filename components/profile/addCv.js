@@ -4,12 +4,14 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react';
 import React, { useState } from 'react'
 import { AddAttachments } from './addpic'
 
 export const AddCv = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
+    
 
     const [submitting, setSubmitting] = useState(false)
 

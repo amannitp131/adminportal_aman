@@ -1,10 +1,22 @@
 import { NextApiHandler } from 'next'
-import { getSession } from 'next-auth/client'
+import { getSession } from 'next-auth/react'
 import { query } from '../../../lib/db'
 
-const handler = async (req, res) => {
-    const session = await getSession({ req })
-    // let session = true;
+function generatePublicationId(email) {
+    const timestamp = Date.now().toString(); // Current timestamp in milliseconds
+    const randomString = Math.random().toString(36).substring(2, 10); // Random alphanumeric string
+    return `${email}-${timestamp}-${randomString}`.replace(/[^a-zA-Z0-9]/g, '').substring(0, 55); // Keep it alphanumeric and trim to 16 chars
+}
+
+
+const handler = async (req, res ) => {
+    let params = req.body;
+    let session=params.session;
+    console.log('Session:', session);
+    console.log('Request:', req.body);
+    if (!session) {
+    console.log({ message: 'You are not authorized' });
+    }
 
     if (session) {
         const { type } = req.query
@@ -255,23 +267,35 @@ const handler = async (req, res) => {
                     })
                     return res.json(result)
                 } else if (type == 'publications') {
-                    console.log(params.data)
-                    params.data = JSON.stringify(params.data)
+                    console.log(params.data);
+                    params.data = JSON.stringify(params.data);  // Ensure the data is in the correct format
+                    const publicationId = generatePublicationId(params.email); // Generate publication ID
+                    console.log({
+                        email: params.email,
+                        publication_id: publicationId,
+                        publications: params.data,
+                    });
+                
+                    // Fix the query: Ensure that we pass the correct number of parameters
                     let result = await query(
-                        ` INSERT INTO publications (email,publication_id,publications) VALUES (?,?,?)` +
-                            ` ON DUPLICATE KEY UPDATE publications= ? ;`,
-                        [params.email, Date.now(), params.data, params.data]
-                    ).catch((err) => console.log(err))
-                    // console.log(result)
-                    return res.json(result)
-                } else if (type == 'pub-pdf') {
+                        `INSERT INTO publications (email, publication_id, publications) 
+                        VALUES (?, ?, ?) 
+                        ON DUPLICATE KEY UPDATE publications = ?;`,
+                        [params.email, publicationId, params.data, params.data]  // Pass the value for UPDATE
+                    ).catch((err) => console.log('Error:', err));
+                
+                    console.log('Payload data:', result);
+                    return res.json(result);
+                }
+                 else if (type == 'pub-pdf') {
+                    const publicationId = generatePublicationId(params.email);
                     console.log(params.pdf)
                     let result = await query(
                         ` INSERT INTO publications (email,publication_id,pub_pdf) VALUES (?,?,?)` +
                             ` ON DUPLICATE KEY UPDATE pub_pdf= ? ;`,
-                        [params.email, Date.now(), params.pdf, params.pdf]
+                        [params.email, publicationId, params.pdf]
                     ).catch((err) => console.log(err))
-                    // console.log(result)
+                    console.log(result)
                     return res.json(result)
                 } else if (type == 'project') {
                     let result = await query(
@@ -338,18 +362,41 @@ const handler = async (req, res) => {
                     )
                     return res.json(result)
                 }
-                else if (type == 'patent') {
-                    // Handling for patents
-                    let result = await query(
-                        `INSERT INTO patents (title, description, patent_date, email) VALUES`+ `(?, ?, ?, ?)`,
-                        [
+                else if (type === 'patent') {
+                    try {
+                        const publicationId = generatePublicationId(params.email);
+                        console.log('Inserting data:', [
+                            publicationId,
                             params.title,
                             params.description,
                             params.patent_date,
-                            session.user.email, // Assuming email is fetched from session
-                        ]
-                    ).catch((err) => console.log(err))
-                    return res.json(result)}
+                            session.user.email
+                        ]);
+                        // Insert the patent record into the database
+                        const result = await query(
+                            `INSERT INTO patents (publication_id, title, description, patent_date, email)
+                             VALUES (?, ?, ?, ?, ?)`,
+                            [
+                                publicationId,         // Unique publication ID
+                                params.title,          // Title of the patent
+                                params.description,    // Description of the patent
+                                params.patent_date,    // Patent date
+                                session.user.email,    // Email of the user from the session
+                            ]
+                        );
+                       
+                        
+                        console.log('SQL Query:', `INSERT INTO patents (publication_id, title, description, patent_date, email) VALUES (?, ?, ?, ?, ?)`);
+                        console.log('Query Parameters:', [publicationId, params.title, params.description, params.patent_date, session.user.email]);
+
+                        console.log('Patent insertion result:', result);
+                        return res.json(result);
+                    } catch (err) {
+                        console.error('Error handling patent insertion:', err);
+                        return res.status(500).json({ error: 'Database error', details: err.message });
+                    }
+                }
+                
             } else {
                 return res.json({ message: 'Could not find matching requests' })
             }

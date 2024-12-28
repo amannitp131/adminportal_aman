@@ -1,85 +1,78 @@
-import { google, run_v1 } from 'googleapis'
-import readline from 'readline'
+import { google } from 'googleapis';
+import readline from 'readline';
+import { promisify } from 'util';
 
-export let authorized = false
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
+const client_id = process.env.GOOGLE_CLIENT_ID;
+const client_secret = process.env.GOOGLE_CLIENT_SECRET;
 
-let TOKEN_PATH = JSON.parse(process.env.TOKEN_PATH)
-console.log(TOKEN_PATH)
+// Handle REDIRECT_URIS parsing
+let redirect_uris;
+try {
+    redirect_uris = JSON.parse(process.env.REDIRECT_URIS)?.urls || [];
+    if (!redirect_uris.length) throw new Error('REDIRECT_URIS is empty');
+} catch (error) {
+    console.error('Invalid REDIRECT_URIS in environment variables:', error);
+    redirect_uris = ['https://developers.google.com/oauthplayground/']; // Fallback
+}
 
-const SCOPES = ['https://www.googleapis.com/auth/drive']
-const client_id = process.env.GOOGLE_ID
-const client_secret = process.env.GOOGLE_SECRET
-const redirect_uris = JSON.parse(process.env.REDIRECT_URIS).urls
+const oAuth2 = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-const oAuth2 = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0]
-)
+// Handle TOKEN_PATH parsing
+let TOKEN_PATH;
+try {
+    TOKEN_PATH = JSON.parse(process.env.TOKEN_PATH || '{}');
+} catch (error) {
+    console.error('Invalid TOKEN_PATH in environment variables:', error);
+    TOKEN_PATH = null;
+}
 
-/**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
- * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback for the authorized client.
- */
+export let authorized = false;
+
 export async function getAccessToken(oAuth2Client = oAuth2) {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
-    })
-    console.log('Authorize this app by visiting this url:', authUrl)
-    const rl = await readline.createInterface({
+    });
+    console.log('Authorize this app by visiting this URL:', authUrl);
+
+    const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
-    })
+    });
 
-    rl.setPrompt('Enter the code from that page here: ')
-    rl.prompt()
+    rl.question = promisify(rl.question);
+    const code = await rl.question('Enter the code from that page here: ');
+    rl.close();
 
     return new Promise((resolve, reject) => {
-        var response
-        rl.on('line', (code) => {
-            response = code
-            rl.close()
-        })
+        oAuth2Client.getToken(code, (err, token) => {
+            if (err) {
+                console.error('Error retrieving access token:', err);
+                reject(err);
+                return;
+            }
+            oAuth2Client.setCredentials(token);
 
-        rl.on('close', () => {
-            oAuth2Client.getToken(response, (err, token) => {
-                if (err)
-                    return console.error('Error retrieving access token', err)
-                oAuth2Client.setCredentials(token)
-                // Store the token to disk for later program executions
-                TOKEN_PATH = JSON.stringify(token)
-                console.log('Token stored to', TOKEN_PATH)
-                resolve(response)
-            })
-        })
-
-        // rl.close();
-        // oAuth2Client.getToken(code, (err, token) => {
-        //   if (err) return console.error("Error retrieving access token", err);
-        //   oAuth2Client.setCredentials(token);
-        //   // Store the token to disk for later program executions
-        //   TOKEN_PATH = JSON.stringify(token);
-        //   console.log("Token stored to", TOKEN_PATH);
-        // });
-    })
+            // Save token for future use
+            process.env.TOKEN_PATH = JSON.stringify(token);
+            console.log('Token stored successfully.');
+            resolve(token);
+        });
+    });
 }
 
-export function authorize() {
-    // console.log(redirect_uris);
-    if (TOKEN_PATH) {
-        oAuth2.setCredentials(TOKEN_PATH)
-        google.options({ auth: oAuth2 })
-        authorized = true
-        console.log('Successfully Authorized') // setting auth for future requests
+export async function authorize() {
+    if (TOKEN_PATH && TOKEN_PATH.access_token) {
+        oAuth2.setCredentials(TOKEN_PATH);
+        google.options({ auth: oAuth2 });
+        authorized = true;
+        console.log('Successfully Authorized');
     } else {
-        return getAccessToken(oAuth2)
+        try {
+            await getAccessToken(oAuth2);
+        } catch (error) {
+            console.error('Authorization failed:', error);
+        }
     }
-    // Check if we have previously stored a token.
-}
-
-export default function getAuthorized(request, response) {
-    authorize()
 }

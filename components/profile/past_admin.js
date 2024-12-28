@@ -4,7 +4,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react';
 import React, { useState } from 'react'
 import DateFnsUtils from '@date-io/date-fns'
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers'
@@ -12,7 +12,8 @@ import Grid from '@material-ui/core/Grid'
 import useRefreshData from '@/custom-hooks/refresh'
 
 export const AddPast = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const refreshData = useRefreshData(false)
     const initialState = {
         past_responsibility: '',
@@ -149,7 +150,8 @@ export const AddPast = ({ handleClose, modal }) => {
 }
 
 export const EditPast = ({ handleClose, modal, values }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const refreshData = useRefreshData(false)
 
     const [content, setContent] = useState(values)

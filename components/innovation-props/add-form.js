@@ -9,7 +9,8 @@ import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-image'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const [content, setContent] = useState({
         title: '',
         openDate: '',

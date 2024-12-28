@@ -13,7 +13,8 @@ import TextField from '@material-ui/core/TextField'
 import React, { useState } from 'react'
 import { administrationList, depList } from '../../lib/const.js'
 export const AddFaculty = ({ handleClose, modal }) => {
-    // const [session, loading] = useSession();
+    // const { data: session, status } = useSession();
+    const loading = status === "loading";
     const [submitting, setSubmitting] = useState(false)
     const [content, setContent] = useState({
         name: '',

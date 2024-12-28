@@ -8,12 +8,13 @@ import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 
-export const AddPublications = ({ handleClose, modal, published }) => {
-    const [session, loading] = useSession()
+export const AddPublications = ({ handleClose, modal, published,session }) => {
+    
+    //console.log('Session in AddPublications:', session);
     const refreshData = useRefreshData(false)
     const initialState = {}
     const [content, setContent] = useState(initialState)
@@ -33,6 +34,7 @@ export const AddPublications = ({ handleClose, modal, published }) => {
         let data = {
             data: new_data,
             email: session.user.email,
+            session: session,
         }
 
         console.log(new_data)
@@ -41,6 +43,7 @@ export const AddPublications = ({ handleClose, modal, published }) => {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`,
             },
             method: 'POST',
             body: JSON.stringify(data),
@@ -50,6 +53,16 @@ export const AddPublications = ({ handleClose, modal, published }) => {
             console.log('Error Occured')
             // console.log(result)
         }
+        if (!result.ok) {
+            console.error('Error occurred:', result);
+            alert('Failed to save publication. Please try again.');
+            setSubmitting(false);
+            return;
+        }
+        console.log('Session:', session);
+        console.log('Published:', published);
+        console.log('Payload data:', data);
+        console.log('Result:', result);        
         // console.log(result)
         handleClose()
         refreshData()

@@ -16,7 +16,8 @@ import { ConfirmDelete } from './confirm-delete'
 import { administrationList, depList } from '../../lib/const.js'
 
 export const EditFaculty = ({ data, handleClose, modal }) => {
-    // const [session, loading] = useSession();
+    // const { data: session, status } = useSession();
+    const loading = status === "loading";
     const [submitting, setSubmitting] = useState(false)
 
     const [content, setContent] = useState({ ...data })

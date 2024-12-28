@@ -4,7 +4,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments } from '../common-props/add-attachment'
 import Grid from '@material-ui/core/Grid'
@@ -16,7 +16,8 @@ import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers'
 import useRefreshData from '@/custom-hooks/refresh'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === 'loading';
     const initialState = {
         code: '',
         name: '',
@@ -169,7 +170,8 @@ export const AddForm = ({ handleClose, modal }) => {
 }
 
 export const EditSubject = ({ handleClose, modal, values }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === 'loading';
 
     const [content, setContent] = useState(values)
     const refreshData = useRefreshData(false)

@@ -15,7 +15,8 @@ import { AddAttachments } from './../common-props/add-image'
 export const EditForm = ({ data, handleClose, modal }) => {
     const limit = 2
     const deleteArray = useRef([])
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const [content, setContent] = useState({
         id: data.id,
         title: data.title,

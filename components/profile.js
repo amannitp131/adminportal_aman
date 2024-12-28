@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import { Edit } from '@material-ui/icons'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { useSession } from 'next-auth/client'
+import { useSession,getSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import AddBib from './profile/addBib'
@@ -729,39 +729,66 @@ const Pg_UgProjRow = ({ item, index }) => {
     )
 }
 
-export default function Profilepage(props) {
-    const [detail, setDetails] = useState(props.details)
+export default function Profilepage({details}) {
+    const { result, session } = details;
+    //console.log('Profile Page starting :', result)
+    // const { data: session, status } = useSession();
+    // const[loading, setLoading] = useState(false);
+    const [detail, setDetails] = useState(result)
     const [social_media_links, setSocial_media_links] = useState({})
-    const [publications, setPublications] = useState(
-        props.details.publications
-            ? JSON.parse(props.details.publications[0].publications)
-                ? JSON.parse(props.details.publications[0].publications)
-                : []
-            : []
-    )
-    console.log(props.details)
+   // Safely check for publications before accessing
+   const [publications, setPublications] = useState(
+    result?.publications && Array.isArray(result.publications) && result.publications.length > 0
+        ? JSON.parse(result.publications[0].publications) || []
+        : []
+);
+    console.log("result publication :",result.publications)
 
-    // To update state after refreshing data
-    useEffect(() => {
-        setDetails(props.details)
-        setSocial_media_links({
-            Linkedin: detail.profile['linkedin'],
-            'Google Scholar': detail.profile['google_scholar'],
-            'Personal Webpage': detail.profile['personal_webpage'],
-            Scopus: detail.profile['scopus'],
-            Vidwan: detail.profile['vidwan'],
-            Orcid: detail.profile['orcid'],
-        })
-        setPublications(
-            props.details.publications
-                ? JSON.parse(props.details.publications[0].publications)
-                    ? JSON.parse(props.details.publications[0].publications)
-                    : []
-                : []
-        )
-    }, [props.details])
+   
+  // Handle details and social media links
+  useEffect(() => {
+    if (result?.details) {
+        setDetails(result.details);
 
-    const [session, loading] = useSession()
+        setSocialMediaLinks({
+            Linkedin: result.details.profile?.['linkedin'] || 'Not provided',
+            'Google Scholar': result.details.profile?.['google_scholar'] || 'Not provided',
+            'Personal Webpage': result.details.profile?.['personal_webpage'] || 'Not provided',
+            Scopus: result.details.profile?.['scopus'] || 'Not provided',
+            Vidwan: result.details.profile?.['vidwan'] || 'Not provided',
+            Orcid: result.details.profile?.['orcid'] || 'Not provided',
+        });
+    }
+}, [result?.details]);
+
+// Handle publications
+useEffect(() => {
+    if (result?.publications && Array.isArray(result.publications) && result.publications.length > 0) {
+        const parsedPublications = result.publications.flatMap((item) => {
+            try {
+                return JSON.parse(item.publications); // Parse JSON string into objects
+            } catch (error) {
+                console.error('Error parsing publications:', error);
+                return []; // Skip invalid publications
+            }
+        });
+
+       console.log('Parsed Publications:', parsedPublications);
+
+        setPublications(parsedPublications.length > 0 ? parsedPublications : []);
+    } else {
+        console.log('No publications found in result.');
+        setPublications([]);
+    }
+}, [result?.publications]);
+    
+
+    //console.log('Session here in profile page:', session)
+    if (!session) {
+        return <div>Please log in to view your profile.</div>;
+    }
+    
+
     const [addSocialMediaModal, setAddSocialMediaModal] = useState(false)
     const addSocialMediaModalOpen = () => {
         setAddSocialMediaModal(true)
@@ -1597,13 +1624,19 @@ export default function Profilepage(props) {
                                 published={publications}
                                 handleClose={handleCloseAddModal10}
                                 modal={addModal10}
+                                session={session}
                             />
-                            {publications?.length && (
+                            {publications?.length > 0 ? (
+                                
                                 <ShowPublications
                                     publications={publications}
                                     setPublications={setPublications}
+                                    session={session}
                                 />
+                            ) : (
+                                <p>No publications available.</p> // Optional: Provide feedback if no publications exist
                             )}
+
                         </div>
                         <div
                             className="fac-card"

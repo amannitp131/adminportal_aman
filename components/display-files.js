@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSession } from 'next-auth/client';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { AddForm } from './Coursefiles-props/add-form';
 import { EditForm } from './Coursefiles-props/edit-form';

@@ -1,4 +1,4 @@
-import { signIn, signout, useSession } from 'next-auth/client'
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link'
 import styles from './header.module.css'
 import React from 'react'
@@ -49,7 +49,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ButtonAppBar() {
     const classes = useStyles()
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
+
     const [anchorEl, setAnchorEl] = React.useState(null)
     const open = Boolean(anchorEl)
 

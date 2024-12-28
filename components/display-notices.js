@@ -144,7 +144,8 @@ TablePaginationActions.propTypes = {
 }
 
 const DataDisplay = (props) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const classes = useStyles()
     const [details, setDetails] = useState(props.data)
     const [filterQuery, setFilterQuery] = useState(null)

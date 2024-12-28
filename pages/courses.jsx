@@ -1,7 +1,7 @@
 import Layout from '../components/layout';
 import styled from 'styled-components';
-import DataDisplay from '../components/display-files'; // Ensure this component is created for displaying courses
-import { useSession } from 'next-auth/client';
+import DataDisplay from '../components/display-files';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Loading from '../components/loading';
 import Sign from '../components/signin';
@@ -14,52 +14,51 @@ const Wrap = styled.div`
 `;
 
 export default function CoursesPage() {
-    const [isLoading, setIsLoading] = useState(true);
     const [courses, setCourses] = useState([]);
-    const [session, loading] = useSession();
+    const [isLoading, setIsLoading] = useState(true);
+    const { data: session, status } = useSession();
+    const loading = status === 'loading';
 
     useEffect(() => {
-        if (session) {
+        if (session?.user?.email) {
+            setIsLoading(true);
             fetch(`/api/course/all?type=byEmail&email=${encodeURIComponent(session.user.email)}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Accept: 'application/json',
                 },
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    setCourses(data);
-                    setIsLoading(false);
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`Error: ${res.status}`);
+                    }
+                    return res.json();
                 })
-                .catch((err) => {
-                    console.error(err);
-                    setIsLoading(false); // Ensure loading state is updated even on error
-                });
+                .then((data) => setCourses(data))
+                .catch((err) => console.error('Error fetching courses:', err))
+                .finally(() => setIsLoading(false));
         } else {
-            setIsLoading(false); // If no session, stop loading
+            setIsLoading(false);
         }
     }, [session]);
 
-    if (typeof window !== 'undefined' && loading) return <Loading />;
+    if (loading || isLoading) {
+        return <Loading />;
+    }
 
-    if (session && (session.user.role === 1 || session.user.role === 2 ||session.user.role === 3)) {
+    if (session && [1, 2, 3].includes(session.user?.role)) {
         return (
             <Layout>
                 <Wrap>
-                    {isLoading ? (
-                        <Loading />
-                    ) : (
-                        <DataDisplay entries={courses} />
-                    )}
+                    <DataDisplay entries={courses} />
                 </Wrap>
             </Layout>
         );
     }
-    
+
     if (session) {
         return <Unauthorise />;
     }
-    
+
     return <Sign />;
 }

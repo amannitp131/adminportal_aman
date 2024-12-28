@@ -6,7 +6,7 @@ import { CircularProgress } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
 import CardActions from '@material-ui/core/CardActions'
 import Button from '@material-ui/core/Button'
-import { signIn } from 'next-auth/client'
+import { signIn } from 'next-auth/react'
 
 const Home = styled.div`
     width: 100vw;

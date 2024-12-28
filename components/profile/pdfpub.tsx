@@ -1,6 +1,6 @@
 import { Button, DialogContent, Dialog, DialogTitle } from '@material-ui/core'
 import React, { useState } from 'react'
-import { getSession } from 'next-auth/client'
+import { getSession } from 'next-auth/react'
 import useRefreshData from '@/custom-hooks/refresh'
 import { Delete } from '@material-ui/icons'
 import { IconButton } from '@material-ui/core'
