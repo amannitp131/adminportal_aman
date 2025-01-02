@@ -1,12 +1,14 @@
-import styled from 'styled-components'
-import Image from 'next/image'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import { CircularProgress } from '@material-ui/core'
-import Typography from '@material-ui/core/Typography'
-import CardActions from '@material-ui/core/CardActions'
-import Button from '@material-ui/core/Button'
-import { signIn } from 'next-auth/react';
+import styled from 'styled-components';
+import Image from 'next/image';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import { CircularProgress } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import CardActions from '@material-ui/core/CardActions';
+import Button from '@material-ui/core/Button';
+import { signIn, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 const Home = styled.div`
     width: 100vw;
@@ -30,6 +32,16 @@ const Home = styled.div`
 `
 
 const Sign = () => {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+
+    // If session exists, redirect to home
+    useEffect(() => {
+        if (status === 'authenticated') {
+            router.push('/');
+        }
+    }, [status, router]);
+
     return (
         <Home>
             <Image
@@ -58,7 +70,7 @@ const Sign = () => {
                 </CardContent>
             </Card>
         </Home>
-    )
+    );
 }
 
-export default Sign
+export default Sign;
