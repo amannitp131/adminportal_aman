@@ -38,7 +38,7 @@ export default function Page({ result, initialSession }) {
     }
 
     return (
-        <Layout>
+        <Layout session={session} >
             <Profilepage details={{ result, session }} />
         </Layout>
     );
