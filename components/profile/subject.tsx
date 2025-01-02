@@ -169,9 +169,8 @@ export const AddForm = ({ handleClose, modal }) => {
     )
 }
 
-export const EditSubject = ({ handleClose, modal, values }) => {
-    const { data: session, status } = useSession();
-    const loading = status === 'loading';
+export const EditSubject = ({ handleClose, modal, values,session }) => {
+  
 
     const [content, setContent] = useState(values)
     const refreshData = useRefreshData(false)
@@ -190,6 +189,7 @@ export const EditSubject = ({ handleClose, modal, values }) => {
             ...content,
             id: values.id,
             email: session.user.email,
+            session:session,
         }
         // data.attachments = JSON.stringify(data.attachments);
 

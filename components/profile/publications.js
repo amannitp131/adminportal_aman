@@ -14,7 +14,6 @@ import useRefreshData from '@/custom-hooks/refresh'
 
 export const AddPublications = ({ handleClose, modal, published,session }) => {
     
-    //console.log('Session in AddPublications:', session);
     const refreshData = useRefreshData(false)
     const initialState = {}
     const [content, setContent] = useState(initialState)
@@ -32,14 +31,14 @@ export const AddPublications = ({ handleClose, modal, published,session }) => {
             new_data = [{ ...content }]
         }
         let data = {
-            data: new_data,
+            new_data: new_data,
             email: session.user.email,
             session: session,
         }
 
         console.log(new_data)
 
-        let result = await fetch('/api/create/publications', {
+        let result = await fetch('/api/update/publications', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',

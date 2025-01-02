@@ -1,4 +1,4 @@
-import mysql from 'serverless-mysql'
+import mysql from 'serverless-mysql';
 
 export const db = mysql({
     config: {
@@ -6,19 +6,39 @@ export const db = mysql({
         database: process.env.MYSQL_DATABASE,
         user: process.env.MYSQL_USERNAME,
         password: process.env.MYSQL_PASSWORD,
-        port: parseInt(process.env.MYSQL_PORT),
+        port: parseInt(process.env.MYSQL_PORT, 10),
     },
-})
+});
 
-export async function query(
-    q: string,
-    values: (string | number)[] | string | number = []
-) {
+// Validate environment variables at startup
+if (!process.env.MYSQL_HOST || !process.env.MYSQL_DATABASE || !process.env.MYSQL_USERNAME || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_PORT) {
+    throw new Error('Missing one or more required MySQL environment variables.');
+}
+
+/**
+ * Executes a MySQL query.
+ * @param q The SQL query string.
+ * @param values Query parameters to be escaped.
+ * @returns The query result.
+ */
+export async function query(q: string, values: Array<string | number> = []) {
     try {
-        const results = await db.query(q, values)
-        await db.end()
-        return results
-    } catch (e) {
-        throw Error(e.message)
+        const results = await db.query(q, values);
+        return results;
+    } catch (e: any) {
+        console.error('Database Query Error:', e);
+        throw new Error(`Database query failed: ${e.message}`);
+    }
+}
+
+/**
+ * Closes the MySQL connection.
+ * Use this explicitly if required in your workflow.
+ */
+export async function closeConnection() {
+    try {
+        await db.end();
+    } catch (e: any) {
+        console.error('Error closing MySQL connection:', e);
     }
 }

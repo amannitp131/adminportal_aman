@@ -6,38 +6,60 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import { useSession } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
-import { AddAttachments } from './../common-props/add-attachment'
 import useRefreshData from '@/custom-hooks/refresh'
 
-export const AddSocialMediaForm = ({ handleClose, modal, links }) => {
-    const { data: session, status } = useSession();
-        const loading = status === "loading";
-    const refreshData = useRefreshData(false)
-    const initialState = links
+export const AddSocialMediaForm = ({ handleClose, modal, links, session, result }) => {
 
-    const [content, setContent] = useState(links)
+    const refreshData = useRefreshData(false)
+
+    // Initialize the state based on the links or previous values from result.profile
+    const [content, setContent] = useState({
+        linkedin: links?.linkedin || result?.profile?.linkedin || '',
+        google_scholar: links?.google_scholar || result?.profile?.google_scholar || '',
+        personal_webpage: links?.personal_webpage || result?.profile?.personal_webpage || '',
+        scopus: links?.scopus || result?.profile?.scopus || '',
+        vidwan: links?.vidwan || result?.profile?.vidwan || '',
+        orcid: links?.orcid || result?.profile?.orcid || ''
+    })
+
     const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
-        setContent(links)
-    }, [links])
+        setContent({
+            linkedin: links?.linkedin || result?.profile?.linkedin || '',
+            google_scholar: links?.google_scholar || result?.profile?.google_scholar || '',
+            personal_webpage: links?.personal_webpage || result?.profile?.personal_webpage || '',
+            scopus: links?.scopus || result?.profile?.scopus || '',
+            vidwan: links?.vidwan || result?.profile?.vidwan || '',
+            orcid: links?.orcid || result?.profile?.orcid || ''
+        })
+    }, [links, result])
 
+    // Handle input change
     const handleChange = (e) => {
         setContent({ ...content, [e.target.name]: e.target.value })
-        // console.log(content)
     }
 
+    // Handle form submission
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
-        let data = {
-            ...content,
-            update_social_media_links: true,
-            email: session.user.email,
-        }
-        // data.attachments = JSON.stringify(data.attachments);
+        setSubmitting(true)
 
-        let result = await fetch('/api/update/user', {
+        // Prepare the data to send for update
+        let data = {
+            email: session.user.email,
+            session: session,
+            update_social_media_links: true
+        }
+
+        // Add all fields to data object, even if they were not modified.
+        // If a field is empty, we send it as null
+        for (let key in content) {
+            data[key] = content[key] || null // If the field is empty, set it as null
+        }
+
+        // Submit data to the API
+        let response = await fetch('/api/update/user', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
@@ -45,58 +67,56 @@ export const AddSocialMediaForm = ({ handleClose, modal, links }) => {
             method: 'POST',
             body: JSON.stringify(data),
         })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            // console.log(result)
+
+        response = await response.json()
+
+        if (response instanceof Error) {
+            console.log('Error Occurred')
         }
-        // console.log(result)
+
+        // Reset and refresh data
         handleClose()
         refreshData()
         setSubmitting(false)
-        setContent(initialState)
-        window.location.reload()
+        setContent({
+            linkedin: links?.linkedin || result?.profile?.linkedin || '',
+            google_scholar: links?.google_scholar || result?.profile?.google_scholar || '',
+            personal_webpage: links?.personal_webpage || result?.profile?.personal_webpage || '',
+            scopus: links?.scopus || result?.profile?.scopus || '',
+            vidwan: links?.vidwan || result?.profile?.vidwan || '',
+            orcid: links?.orcid || result?.profile?.orcid || ''
+        })
+        window.location.reload() // Optional, could be replaced with state change for better UX
     }
 
     return (
-        <>
-            <Dialog open={modal} onClose={handleClose}>
-                <form
-                    onSubmit={(e) => {
-                        handleSubmit(e)
-                    }}
-                >
-                    <DialogTitle disableTypography style={{ fontSize: `2rem` }}>
-                        Add Social Media Links
-                    </DialogTitle>
-                    <DialogContent>
-                        {content &&
-                            Object.keys(content).map((key, index) => {
-                                return (
-                                    <TextField
-                                        key={index}
-                                        type="url"
-                                        name={key}
-                                        label={key}
-                                        value={content[key]}
-                                        onChange={handleChange}
-                                        margin="normal"
-                                        fullWidth
-                                    />
-                                )
-                            })}
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            disabled={submitting}
-                        >
-                            {submitting ? 'Submitting' : 'Submit'}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-        </>
+        <Dialog open={modal} onClose={handleClose}>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle disableTypography style={{ fontSize: `2rem` }}>
+                    Add Social Media Links
+                </DialogTitle>
+                <DialogContent>
+                    {Object.keys(content).map((key, index) => {
+                        return (
+                            <TextField
+                                key={index}
+                                type="url"
+                                name={key}
+                                label={key.replace(/_/g, ' ')} // Replaces underscores with spaces for label
+                                value={content[key] || ''} // Show value from state
+                                onChange={handleChange}
+                                margin="normal"
+                                fullWidth
+                            />
+                        )
+                    })}
+                </DialogContent>
+                <DialogActions>
+                    <Button type="submit" color="primary" disabled={submitting}>
+                        {submitting ? 'Submitting' : 'Submit'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     )
 }

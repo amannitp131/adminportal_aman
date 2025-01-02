@@ -9,9 +9,9 @@ import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-attachment'
 import useRefreshData from '@/custom-hooks/refresh'
 
-export const Addphd = ({ handleClose, modal }) => {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
+export const Addphd = ({ handleClose, modal ,session }) => {
+    // const { data: session, status } = useSession();
+    // const loading = status === "loading";
     const refreshData = useRefreshData(false)
     const initialState = {
         phd_student_name: '',
@@ -35,6 +35,7 @@ export const Addphd = ({ handleClose, modal }) => {
             ...content,
             id: Date.now(),
             email: session.user.email,
+            session: session,
         }
         // data.attachments = JSON.stringify(data.attachments);
 
@@ -129,9 +130,8 @@ export const Addphd = ({ handleClose, modal }) => {
     )
 }
 
-export const EditPhd = ({ handleClose, modal, values }) => {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
+export const EditPhd = ({ handleClose, modal, values ,session}) => {
+   
     const refreshData = useRefreshData(false)
 
     const [content, setContent] = useState(values)
@@ -149,6 +149,7 @@ export const EditPhd = ({ handleClose, modal, values }) => {
             ...content,
             id: values.id,
             email: session.user.email,
+            session: session,
         }
         // data.attachments = JSON.stringify(data.attachments);
 

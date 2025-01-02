@@ -18,6 +18,7 @@ export default function Bib({ published }) {
         console.log(bibFile)
         let data = new FormData()
         data.append('bib-file', bibFile)
+        data.append('session',session)
         let method_ = published.length ? 'PUT' : 'POST'
         try {
             let res = await fetch('/api/bib2json', {

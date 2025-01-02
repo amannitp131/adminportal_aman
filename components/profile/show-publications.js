@@ -8,67 +8,58 @@ const ShowPublications = ({ publications, setPublications, session }) => {
     const [books, setBooks] = useState([])
     const [conferences, setConferences] = useState([])
     const [patents, setPatents] = useState([])
-
-    // Deleting selected publications
-    const deleteSelected = async (selectedPublicationIds) => {
+    const deleteSelected = async (idArr ,session) => {
         let new_pubs = [...publications];
-        console.log("selectedPublicationIds:", selectedPublicationIds);
-
-        // Filter out the selected publications using their publication_id
-        new_pubs = new_pubs.filter((entry) => !selectedPublicationIds.includes(entry.publication_id));
-
-        const data = {
-            new_data: new_pubs, 
-            email: session.user.email,
-            selectedPublicationIds,  // Include the array of selected publication IDs
-            session: session
-        };
-
-        // Send the delete request to the server
-        let res = await fetch('/api/delete/publications', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${session?.user?.token}`, // Optional: if using authorization
-            },
-            body: JSON.stringify(data),
-        }).catch((err) => console.log(err));
-
-        res = await res.json();
-        console.log(res);
-        setPublications(new_pubs);  // Update the local state with the filtered publications
-        console.log(new_pubs);
+        new_pubs = new_pubs.filter((entry) => !idArr.includes(entry.id));
+        let data = { new_data: new_pubs, email: session.user.email, session: session };
+    
+        try {
+            let res = await fetch('/api/update/publications', {
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+    
+            // Check if the response is OK (status 2xx)
+            if (!res.ok) {
+                throw new Error(`Error: ${res.status} - ${res.statusText}`);
+            }
+    
+            // Check if response has body and parse as JSON
+            const responseBody = await res.text();
+            const responseJson = responseBody ? JSON.parse(responseBody) : {};
+            
+            console.log(responseJson);
+    
+            setPublications(new_pubs);
+        } catch (err) {
+            console.error('Error:', err);
+        }
     };
+    
 
     useEffect(() => {
-        let _articles = [], _books = [], _conferences = [], _patents = [];
+        let _articles = [],
+            _books = [],
+            _conferences = [],
+            _patents = []
 
-        // Categorizing publications by type
-        console.log("publications:", publications);
         publications.forEach((entry, idx) => {
-            entry.id = idx; // Existing id assignment
-        
-            // Ensure we keep the original publication_id
-            const publication_id = publications.publication_id;
-
-            // Add the publication_id to each entry when pushing to respective arrays
-            if (entry.type === 'article') {
-                _articles.push({ ...entry, publication_id });
-            } else if (entry.type === 'book') {
-                _books.push({ ...entry, publication_id });
-            } else if (entry.type === 'conference') {
-                _conferences.push({ ...entry, publication_id });
-            } else if (entry.type === 'patent') {
-                _patents.push({ ...entry, publication_id });
-            }
-            console.log("entry:", entry);
-        });
+            entry.id = idx
+            if (entry.type == 'article') _articles.push(entry)
+            else if (entry.type == 'book') _books.push(entry)
+            else if (entry.type == 'conference') _conferences.push(entry)
+            else if (entry.type == 'patent') _patents.push(entry)
+        })
 
         setArticles(_articles)
         setConferences(_conferences)
         setBooks(_books)
         setPatents(_patents)
-    }, [publications]);
+    }, [publications])
 
     return (
         <>
@@ -77,12 +68,13 @@ const ShowPublications = ({ publications, setPublications, session }) => {
                     <Articles
                         articles={articles}
                         deleteSelected={deleteSelected}
+                        session={session}
                     />
                 </div>
             )}
             {books.length > 0 && (
                 <div style={{ marginTop: `50px`, marginBottom: `50px` }}>
-                    <Books books={books} deleteSelected={deleteSelected} />
+                    <Books books={books} deleteSelected={deleteSelected} session={session}/>
                 </div>
             )}
             {conferences.length > 0 && (
@@ -90,6 +82,7 @@ const ShowPublications = ({ publications, setPublications, session }) => {
                     <Conferences
                         conferences={conferences}
                         deleteSelected={deleteSelected}
+                        session={session}
                     />
                 </div>
             )}
@@ -98,6 +91,7 @@ const ShowPublications = ({ publications, setPublications, session }) => {
                     <Patents
                         patents={patents}
                         deleteSelected={deleteSelected}
+                        session={session}
                     />
                 </div>
             )}
@@ -106,7 +100,7 @@ const ShowPublications = ({ publications, setPublications, session }) => {
 };
 
 // Articles Component
-const Articles = ({ articles, deleteSelected }) => {
+const Articles = ({ articles, deleteSelected,session }) => {
     const [selectionModel, setSelectionModel] = React.useState([]);
     const columns = [
         { field: 'id', headerName: 'ID', width: 100 },
@@ -126,7 +120,7 @@ const Articles = ({ articles, deleteSelected }) => {
                     variant="contained"
                     color="secondary"
                     onClick={() => {
-                        deleteSelected(selectionModel); // Pass selectionModel here
+                        deleteSelected(selectionModel, session); // Pass selectionModel here
                         setSelectionModel([]); // Clear the selection
                     }}
                 >
@@ -154,7 +148,7 @@ const Articles = ({ articles, deleteSelected }) => {
 };
 
 // Books Component
-const Books = ({ books, deleteSelected }) => {
+const Books = ({ books, deleteSelected,session }) => {
     const [selectionModel, setSelectionModel] = React.useState([]);
     const columns = [
         { field: 'id', headerName: 'ID', width: 100 },
@@ -175,7 +169,7 @@ const Books = ({ books, deleteSelected }) => {
                     variant="contained"
                     color="secondary"
                     onClick={() => {
-                        deleteSelected(selectionModel); // Pass selectionModel here
+                        deleteSelected(selectionModel, session); // Pass selectionModel here
                         setSelectionModel([]); // Clear the selection
                     }}
                 >
@@ -203,7 +197,7 @@ const Books = ({ books, deleteSelected }) => {
 };
 
 // Conferences Component
-const Conferences = ({ conferences, deleteSelected }) => {
+const Conferences = ({ conferences, deleteSelected,session }) => {
     const [selectionModel, setSelectionModel] = React.useState([]);
     const columns = [
         { field: 'id', headerName: 'ID', width: 100 },
@@ -223,7 +217,7 @@ const Conferences = ({ conferences, deleteSelected }) => {
                     variant="contained"
                     color="secondary"
                     onClick={() => {
-                        deleteSelected(selectionModel); // Pass selectionModel here
+                        deleteSelected(selectionModel, session); // Pass selectionModel here
                         setSelectionModel([]); // Clear the selection
                     }}
                 >
@@ -251,7 +245,7 @@ const Conferences = ({ conferences, deleteSelected }) => {
 };
 
 // Patents Component
-const Patents = ({ patents, deleteSelected }) => {
+const Patents = ({ patents, deleteSelected ,session}) => {
     const [selectionModel, setSelectionModel] = React.useState([]);
     const columns = [
         { field: 'id', headerName: 'ID', width: 100 },
@@ -272,7 +266,7 @@ const Patents = ({ patents, deleteSelected }) => {
                     variant="contained"
                     color="secondary"
                     onClick={() => {
-                        deleteSelected(selectionModel); // Pass selectionModel here
+                        deleteSelected(selectionModel, session); // Pass selectionModel here
                         setSelectionModel([]); // Clear the selection
                     }}
                 >

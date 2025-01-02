@@ -9,9 +9,8 @@ import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-attachment'
 import useRefreshData from '@/custom-hooks/refresh'
 
-export const AddEdu = ({ handleClose, modal }) => {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
+export const AddEdu = ({ handleClose, modal ,session}) => {
+   
     const refreshData = useRefreshData(false)
     const initialState = {
         certification: '',

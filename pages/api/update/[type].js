@@ -1,12 +1,16 @@
 import { NextApiHandler } from 'next';
 import { query } from '../../../lib/db';
-import { getSession } from 'next-auth/client';
+import { getSession } from 'next-auth/react';
 
 const handler = async (req, res) => {
-    const session = await getSession({ req });
+
+    const params = req.body;
+    let session =params.session;
+    console.log("req.body in update", req.body);
 
     if (session) {
         const { type } = req.query; // Extract the type from the query parameters
+        console.log("type in update", type);
         try {
             const params = req.body; // Get the request body
 
@@ -136,20 +140,39 @@ const handler = async (req, res) => {
             // User-specific updates
             if (type === 'user' && (session.user.role === 1 || session.user.email === params.email)) {
                 if (params.update_social_media_links) {
-                    let result = await query(
-                        'UPDATE users SET linkedin=?, google_scholar=?, personal_webpage=?, scopus=?, vidwan=?, orcid=? WHERE email=?',
-                        [
-                            params.Linkedin ? params.Linkedin : '',
-                            params['Google Scholar'] ? params['Google Scholar'] : '',
-                            params['Personal Webpage'] ? params['Personal Webpage'] : '',
-                            params['Scopus'] ? params['Scopus'] : '',
-                            params['Vidwan'] ? params['Vidwan'] : '',
-                            params['Orcid'] ? params['Orcid'] : '',
-                            session.user.email,
-                        ]
-                    );
-                    return res.json(result);
-                } else {
+                    console.log("params in update request", params);
+                    
+                    // Debugging: Check if session email matches the one being passed
+                    console.log("Session email:", session.user.email);
+                    
+                    try {
+                        let result = await query(
+                            'UPDATE users SET linkedin=?, google_scholar=?, personal_webpage=?, scopus=?, vidwan=?, orcid=? WHERE email=?',
+                            [
+                                params.linkedin || '', // Using params.linkedin instead of params.Linkedin
+                                params.google_scholar || '', // Adjust key names to match the request
+                                params.personal_webpage || '',
+                                params.scopus || '',
+                                params.vidwan || '',
+                                params.orcid || '',
+                                session.user.email, // Use session user email for matching
+                            ]
+                        );
+                
+                        console.log('Database update result:', result);
+                        
+                        // Check if any rows were affected
+                        if (result.affectedRows === 0) {
+                            console.log('No rows updated, check if the email exists and data is different');
+                        }
+                
+                        return res.json(result);
+                    } catch (error) {
+                        console.log('Error during update:', error);
+                        return res.status(500).json({ error: 'Failed to update user data' });
+                    }
+                }
+                 else {
                     let result = await query(
                         `UPDATE users SET name=?, email=?, role=?, department=?, designation=?, ext_no=?, administration=?, research_interest=? WHERE id=?`,
                         [
@@ -245,15 +268,19 @@ const handler = async (req, res) => {
                     })
                     return res.json(result)
                 } else if (type == 'publications') {
-                    console.log(params.data)
-                    params.data = JSON.stringify(params.data)
+                    console.log("data to be modified in db:", params.new_data);
+                    params.data = JSON.stringify(params.new_data);
+                    
                     let result = await query(
-                        `UPDATE publications SET publications=? WHERE email=? AND publication_id=?`,
-                        [params.data, params.email, params.publication_id]
-                    ).catch((err) => console.log(err))
-                    // console.log(result)
-                    return res.json(result)
-                } else if (type == 'project') {
+                        `INSERT INTO publications (email, publications) 
+                         VALUES (?, ?) 
+                         ON DUPLICATE KEY UPDATE publications = ?`,
+                        [params.email, params.data, params.data]
+                    ).catch((err) => console.log(err));
+                
+                    return res.json(result);
+                }
+                 else if (type == 'project') {
                     let result = await query(
                         `UPDATE project SET project=?,sponsor=?,amount=?,start=?,end=? WHERE email=? AND id=?`,
                         [

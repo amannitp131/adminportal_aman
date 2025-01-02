@@ -9,9 +9,8 @@ import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-attachment'
 import useRefreshData from '@/custom-hooks/refresh'
 
-export const AddResearch = ({ handleClose, modal, detail }) => {
-    const { data: session, status } = useSession();
-    const loading = status === 'loading';
+export const AddResearch = ({ handleClose, modal, detail,session }) => {
+    
     const refreshData = useRefreshData(false)
     const initialState = {
         id: `${detail.id}`,
@@ -37,6 +36,7 @@ export const AddResearch = ({ handleClose, modal, detail }) => {
         let data = {
             ...content,
             email: session.user.email,
+            session:session,
         }
         // data.attachments = JSON.stringify(data.attachments);
 

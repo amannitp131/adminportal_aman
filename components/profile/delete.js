@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react'
 import React from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 
@@ -11,32 +11,34 @@ export const ConfirmDelete = ({
     modal,
     id,
     del,
-    scrolltoTop = false,
     session,
+    scrolltoTop = false,
     callback = async () => {},
 }) => {
-    // const { data: session, status } = useSession();
-    console.log("session in delete",session)
-    //const loading = status === "loading";
+    
     const refreshData = useRefreshData(scrolltoTop)
     let data = {
         id: id,
         email: session.user.email,
+        session: session,
     }
     const deleteEvent = async () => {
         let result = await fetch(`/api/delete/${del}`, {
-            method: 'DELETE',
-            body: JSON.stringify(data),
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
         })
         result = await result.json()
         if (result instanceof Error) {
-            console.log('Error Occured')
-            // console.log(result)
+          console.log('Error Occured')
+          // console.log(result)
         } else await callback()
         // console.log(result)
         handleClose()
         refreshData()
-    }
+      }
 
     return (
         <div>

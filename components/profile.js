@@ -616,7 +616,7 @@ const ProjectRow = ({ item , session}) => {
     )
 }
 
-const PhdCandidRow = ({ item, index }) => {
+const PhdCandidRow = ({ item, index,session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -654,6 +654,7 @@ const PhdCandidRow = ({ item, index }) => {
                     handleClose={handleCloseEditModal}
                     modal={editModal}
                     values={item}
+                    session={session}
                 />
             </td>
             <td>
@@ -741,11 +742,19 @@ const Pg_UgProjRow = ({ item, index }) => {
 
 export default function Profilepage({details}) {
     const { result, session } = details;
-    //console.log('Profile Page starting :', result)
+    
+    console.log('Profile Page starting :' , session)
     // const { data: session, status } = useSession();
     // const[loading, setLoading] = useState(false);
     const [detail, setDetails] = useState(result)
-    const [social_media_links, setSocial_media_links] = useState({})
+    const [social_media_links, setSocialMediaLinks] = useState({
+        Linkedin: 'Not provided',
+        'Google Scholar': 'Not provided',
+        'Personal Webpage': 'Not provided',
+        Scopus: 'Not provided',
+        Vidwan: 'Not provided',
+        Orcid: 'Not provided',
+    })
    // Safely check for publications before accessing
    const [publications, setPublications] = useState(
     result?.publications && Array.isArray(result.publications) && result.publications.length > 0
@@ -755,21 +764,20 @@ export default function Profilepage({details}) {
     console.log("result publication :",result.publications)
 
    
-  // Handle details and social media links
-  useEffect(() => {
-    if (result?.details) {
-        setDetails(result.details);
-
-        setSocialMediaLinks({
-            Linkedin: result.details.profile?.['linkedin'] || 'Not provided',
-            'Google Scholar': result.details.profile?.['google_scholar'] || 'Not provided',
-            'Personal Webpage': result.details.profile?.['personal_webpage'] || 'Not provided',
-            Scopus: result.details.profile?.['scopus'] || 'Not provided',
-            Vidwan: result.details.profile?.['vidwan'] || 'Not provided',
-            Orcid: result.details.profile?.['orcid'] || 'Not provided',
-        });
-    }
-}, [result?.details]);
+    useEffect(() => {
+        if (result) {
+            setDetails(result);
+            setSocialMediaLinks({
+                Linkedin: result.profile?.linkedin || 'Not provided',
+                'Google Scholar': result.profile?.google_scholar || 'Not provided',
+                'Personal Webpage': result.profile?.personal_webpage || 'Not provided',
+                Scopus: result.profile?.scopus || 'Not provided',
+                Vidwan: result.profile?.vidwan || 'Not provided',
+                Orcid: result.profile?.orcid || 'Not provided',
+            });
+        }
+    }, [result?.profile]);  // Ensure that result.details is loaded before setting the links
+    
 
 // Handle publications
 useEffect(() => {
@@ -957,6 +965,7 @@ useEffect(() => {
                             <AddPic
                                 handleClose={handleCloseAddModalp}
                                 modal={addModalp}
+                                session={session}
                             />
                             <br />
                             <Button
@@ -970,6 +979,7 @@ useEffect(() => {
                             <AddCv
                                 handleClose={handleCloseAddCvModalp}
                                 modal={addCvModalp}
+                                session={session}
                             />
                             <br />
                             {detail.profile.cv && (
@@ -1041,6 +1051,7 @@ useEffect(() => {
                                 handleClose={handleCloseAddModal9}
                                 modal={addModal9}
                                 detail={detail.profile}
+                                session={session}
                             />
                         </div>
 
@@ -1082,67 +1093,45 @@ useEffect(() => {
                 })}
             </div> */}
 
-                        <div
-                            className="fac-card"
-                            data-aos="fade-up"
-                            style={{ position: `relative` }}
-                        >
-                            <h3>Social Media Links</h3>
-                            <Button
-                                color="primary"
-                                variant="contained"
-                                onClick={() => addSocialMediaModalOpen()}
-                                style={{
-                                    position: `absolute`,
-                                    top: `5px`,
-                                    right: `5px`,
-                                }}
-                            >
-                                Edit
-                            </Button>
-                            <AddSocialMediaForm
-                                handleClose={handleCloseSocialMediaAddModal}
-                                modal={addSocialMediaModal}
-                                links={social_media_links}
-                            />
+<div className="fac-card" data-aos="fade-up" style={{ position: `relative` }}>
+        <h3>Social Media Links</h3>
+        <Button
+            color="primary"
+            variant="contained"
+            onClick={() => addSocialMediaModalOpen()}
+            style={{
+                position: `absolute`,
+                top: `5px`,
+                right: `5px`,
+            }}
+        >
+            Edit
+        </Button>
+        <AddSocialMediaForm
+            handleClose={handleCloseSocialMediaAddModal}
+            modal={addSocialMediaModal}
+            links={social_media_links}
+            session={session}
+            result={result}
+        />
+            <div className="factable">
+    <table>
+        <tr>
+            <td><h4>Website</h4></td>
+            <td><h4>Profile Link</h4></td>
+            <td></td>
+        </tr>
+        {Object.keys(social_media_links).map((key) => (
+            <tr key={key}>
+                <td><p>{key}</p></td>
+                <td><p>{social_media_links[key]}</p></td>
+            </tr>
+        ))}
+    </table>
+</div>
 
-                            <div className="factable">
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <h4>Website</h4>
-                                        </td>
-                                        <td>
-                                            <h4>Profile Link</h4>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    {social_media_links &&
-                                        Object.keys(social_media_links).map(
-                                            (key) =>
-                                                social_media_links[key] ? (
-                                                    <>
-                                                        <tr>
-                                                            <td>
-                                                                <p>{key}</p>
-                                                            </td>
-                                                            <td>
-                                                                <p>
-                                                                    {
-                                                                        social_media_links[
-                                                                            key
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                    </>
-                                                ) : null
-                                        )}
-                                </table>
-                            </div>
-                        </div>
 
+    </div>
                         <div
                             className="fac-card"
                             data-aos="fade-up"
@@ -1630,6 +1619,7 @@ useEffect(() => {
                                         : ''
                                 }
                             />
+                            
                             <AddPublications
                                 published={publications}
                                 handleClose={handleCloseAddModal10}
@@ -1669,6 +1659,7 @@ useEffect(() => {
                             <Addphd
                                 handleClose={handleCloseAddModal8}
                                 modal={addModal8}
+                                session={session}
                             />
 
                             <div className="factable">
@@ -1694,6 +1685,7 @@ useEffect(() => {
                                                 <PhdCandidRow
                                                     item={item} session={session}
                                                     index={index}
+
                                                 />
                                             )
                                         )}

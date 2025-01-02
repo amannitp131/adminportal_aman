@@ -8,9 +8,8 @@ import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments } from './addpic'
 
-export const AddPic = ({ handleClose, modal }) => {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
+export const AddPic = ({ handleClose, modal ,session }) => {
+    
 
 
     const [submitting, setSubmitting] = useState(false)
@@ -23,7 +22,7 @@ export const AddPic = ({ handleClose, modal }) => {
 
         let data = {
             email: session.user.email,
-
+            session:session,
             image: [...attachments],
         }
         for (let i = 0; i < data.image.length; i++) {
