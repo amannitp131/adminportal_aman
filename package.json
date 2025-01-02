@@ -30,7 +30,6 @@
         "clsx": "^1.1.1",
         "date-fns": "^2.19.0",
         "dotenv": "^8.2.0",
-        "eslint-plugin-react": "^7.32.2",
         "googleapis": "^71.0.0",
         "multer": "^1.4.2",
         "next": "^15.1.2",
@@ -53,12 +52,7 @@
     "devDependencies": {
         "@types/node": "^14.14.37",
         "@types/react": "^17.0.3",
-        "eslint": "8.41.0",
         "husky": "^8.0.3",
-        "lint-staged": "^13.2.2",
         "typescript": "^5.7.2"
-    },
-    "lint-staged": {
-        "*.js": "eslint --cache --fix"
     }
 }

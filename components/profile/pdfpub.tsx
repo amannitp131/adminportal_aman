@@ -114,6 +114,7 @@ const PubPdf: React.FC<PubPdfProps> = ({ pdf, session }) => {
             id={pdf.split('/')[5]}
             del="pub-pdf"
             callback={handleDeleteFile}
+            session={session}
           />
         </div>
       ) : (
