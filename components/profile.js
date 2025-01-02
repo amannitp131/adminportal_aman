@@ -152,7 +152,7 @@ const Profile = styled.div`
     }
 `
 
-const SubjectRow = ({ item }) => {
+const SubjectRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -202,13 +202,14 @@ const SubjectRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'subjects'}
+                    session={session}
                 />
             </td>
         </tr>
     )
 }
 
-const MemAndSocRow = ({ item }) => {
+const MemAndSocRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -266,13 +267,14 @@ const MemAndSocRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'memberships'}
+                    session={session}
                 />
             </td>
         </tr>
     )
 }
 
-const EducationRow = ({ item }) => {
+const EducationRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -316,13 +318,14 @@ const EducationRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'education'}
+                    session={session}
                 />
             </td>
         </tr>
     )
 }
 
-const CurrAdminRow = ({ item }) => {
+const CurrAdminRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -370,13 +373,14 @@ const CurrAdminRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'current-responsibility'}
+                    session={session}
                 />
             </td>
         </tr>
     )
 }
 
-const PastAdminRow = ({ item }) => {
+const PastAdminRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -431,13 +435,14 @@ const PastAdminRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'past-responsibility'}
+                    session={session}
                 />
             </td>
         </tr>
     )
 }
 
-const WorkExpRow = ({ item }) => {
+const WorkExpRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -495,13 +500,14 @@ const WorkExpRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'workexperience'}
+                    session={session}
                 />
             </td>
         </tr>
     )
 }
 
-const ProServiceRow = ({ item }) => {
+const ProServiceRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -536,12 +542,13 @@ const ProServiceRow = ({ item }) => {
                 modal={deleteModal}
                 id={item.id}
                 del={'professionalservice'}
+                session={session}
             />
         </p>
     )
 }
 
-const ProjectRow = ({ item }) => {
+const ProjectRow = ({ item , session}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -602,6 +609,7 @@ const ProjectRow = ({ item }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'project'}
+                    session={session}
                 />
             </td>
         </tr>
@@ -661,6 +669,7 @@ const PhdCandidRow = ({ item, index }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'phdcandidates'}
+                    session={session}
                 />
             </td>
         </tr>
@@ -723,6 +732,7 @@ const Pg_UgProjRow = ({ item, index }) => {
                     modal={deleteModal}
                     id={item.id}
                     del={'pg_ug_projects'}
+                    session={session}
                 />
             </td>
         </tr>
@@ -1175,7 +1185,7 @@ useEffect(() => {
                                     </tr>
                                     {detail.subjects_teaching &&
                                         detail.subjects_teaching.map((item) => (
-                                            <SubjectRow item={item} />
+                                            <SubjectRow item={item} session={session} />
                                         ))}
                                 </table>
                             </div>
@@ -1221,7 +1231,7 @@ useEffect(() => {
                                     </tr>
                                     {detail.memberships &&
                                         detail.memberships.map((item) => (
-                                            <MemAndSocRow item={item} />
+                                            <MemAndSocRow item={item} session={session} />
                                         ))}
                                 </table>
                             </div>
@@ -1264,7 +1274,7 @@ useEffect(() => {
                                     </tr>
                                     {detail.education &&
                                         detail.education.map((item) => (
-                                            <EducationRow item={item} />
+                                            <EducationRow item={item} session={session} />
                                         ))}
                                 </table>
                             </div>
@@ -1305,7 +1315,7 @@ useEffect(() => {
                                     {detail.curr_admin_responsibility &&
                                         detail.curr_admin_responsibility.map(
                                             (item) => (
-                                                <CurrAdminRow item={item} />
+                                                <CurrAdminRow item={item} session={session} />
                                             )
                                         )}
                                 </table>
@@ -1387,7 +1397,7 @@ useEffect(() => {
                                     {detail.past_admin_responsibility &&
                                         detail.past_admin_responsibility.map(
                                             (item) => (
-                                                <PastAdminRow item={item} />
+                                                <PastAdminRow item={item} session={session} />
                                             )
                                         )}
                                 </table>
@@ -1471,7 +1481,7 @@ useEffect(() => {
                                     </tr>
                                     {detail.work_experience &&
                                         detail.work_experience.map((item) => (
-                                            <WorkExpRow item={item} />
+                                            <WorkExpRow item={item} session={session} />
                                         ))}
                                 </table>
                             </div>
@@ -1501,7 +1511,7 @@ useEffect(() => {
                             />
                             {detail.professional_service &&
                                 detail.professional_service.map((item) => (
-                                    <ProServiceRow item={item} />
+                                    <ProServiceRow item={item} session={session} />
                                 ))}
                         </div>
 
@@ -1588,7 +1598,7 @@ useEffect(() => {
                                     </tr>
                                     {detail.project &&
                                         detail.project.map((item) => (
-                                            <ProjectRow item={item} />
+                                            <ProjectRow item={item} session={session} />
                                         ))}
                                 </table>
                             </div>
@@ -1682,7 +1692,7 @@ useEffect(() => {
                                         detail.phd_candidates.map(
                                             (item, index) => (
                                                 <PhdCandidRow
-                                                    item={item}
+                                                    item={item} session={session}
                                                     index={index}
                                                 />
                                             )
@@ -1738,7 +1748,7 @@ useEffect(() => {
                                         detail.pg_ug_projects.map(
                                             (item, index) => (
                                                 <Pg_UgProjRow
-                                                    item={item}
+                                                    item={item} session={session}
                                                     index={index}
                                                 />
                                             )

@@ -12,10 +12,12 @@ export const ConfirmDelete = ({
     id,
     del,
     scrolltoTop = false,
+    session,
     callback = async () => {},
 }) => {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
+    // const { data: session, status } = useSession();
+    console.log("session in delete",session)
+    //const loading = status === "loading";
     const refreshData = useRefreshData(scrolltoTop)
     let data = {
         id: id,

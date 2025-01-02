@@ -19,42 +19,34 @@ export default function Page({ result, initialSession }) {
     const { data: clientSession, status } = useSession();
     const [loading, setLoading] = useState(true);
     const session = clientSession || initialSession;
-    
-    //console.log('Initial Session here :', initialSession);
-    //console.log('Intial Result here :', result);
-    // useEffect(() => {
-    //     console.log('Session on client side:', session);
-    //     console.log('Status of useSession:', status);
-    //     setLoading(status === 'loading');
-    // }, [session, status]);
+    console.log("session in index",session)
 
-    // if (loading) {
-    //     return <Loading />;
-    // }
+    useEffect(() => {
+        setLoading(status === 'loading');
+    }, [status]);
+
+    if (loading) {
+        return <Loading />;
+    }
 
     if (!session) {
-        console.log('No session found, redirecting to Sign In.');
         return <Sign />;
     }
 
     if (!result || !result.profile) {
-        console.error('No faculty data found.');
         return <div>Error: Unable to load faculty data</div>;
     }
 
-    //console.log('Faculty Data:', result);
-
     return (
         <Layout>
-        <Profilepage details={{ result, session }} />
-    </Layout>
+            <Profilepage details={{ result, session }} />
+        </Layout>
     );
 }
 
 export async function getServerSideProps(context) {
     try {
         const session = await getSession(context);
-        //console.log('Session in getServerSideProps:', session);
 
         if (!session) {
             return {
