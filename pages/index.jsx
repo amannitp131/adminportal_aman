@@ -30,7 +30,7 @@ export default function Page({ result, initialSession }) {
     }
 
     if (!session) {
-        return <Sign />;
+        return <Sign session={session}/>;
     }
 
     if (!result || !result.profile) {
@@ -47,11 +47,12 @@ export default function Page({ result, initialSession }) {
 export async function getServerSideProps(context) {
     try {
         const session = await getSession(context);
-
+        console.log("session in getServerSideProps",session)
         if (!session) {
             return {
                 redirect: {
                     destination: '/signin',
+                    
                     permanent: false,
                 },
             };

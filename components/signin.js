@@ -7,8 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import { signIn, useSession } from 'next-auth/react';
-import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const Home = styled.div`
     width: 100vw;
@@ -29,31 +29,45 @@ const Home = styled.div`
     .title {
         font-size: 24px;
     }
-`
+`;
 
 const Sign = () => {
-    const { data: session, status } = useSession();
+    const { data: session, status } = useSession(); // Use `useSession` for client-side session handling
     const router = useRouter();
+    console.log("session in signin",session)
 
-    // If session exists, redirect to home
     useEffect(() => {
-        if (status === 'authenticated') {
+        if (session) {
             router.push('/');
         }
-    }, [status, router]);
+    }, [session, router]);
+
+    if (status === 'loading') {
+        return (
+            <Home>
+                <CircularProgress />
+            </Home>
+        );
+    }
 
     return (
         <Home>
             <Image
                 className="image"
                 src="/nitp.png"
+                alt="Background Image"
                 layout="fill"
                 objectFit="cover"
                 quality={100}
             />
             <Card className="card">
                 <CardContent>
-                    <Image src="/logo512.png" width="100" height="100" />
+                    <Image
+                        src="/logo512.png"
+                        alt="Logo"
+                        width={100}
+                        height={100}
+                    />
                     <Typography className="title" color="textPrimary">
                         Welcome to Admin Portal
                     </Typography>
@@ -62,7 +76,8 @@ const Sign = () => {
                         <Button
                             color="secondary"
                             variant="contained"
-                            onClick={() => signIn('google')}
+                            onClick={() => signIn('google', { callbackUrl: '/' })}
+                           
                         >
                             Login with Google
                         </Button>
@@ -71,6 +86,6 @@ const Sign = () => {
             </Card>
         </Home>
     );
-}
+};
 
 export default Sign;
