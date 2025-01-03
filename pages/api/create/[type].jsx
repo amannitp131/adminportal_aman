@@ -348,20 +348,41 @@ const handler = async (req, res ) => {
                     return res.json(result)
                 } else if (type == 'pg_ug_projects') {
                     let result = await query(
-                        `INSERT INTO pg_ug_projects (id,email,student_name,student_program,project_topic,start_year,completion_year) VALUES` +
-                            `(?,?,?,?,?,?,?)`,
+                        `INSERT INTO pg_ug_projects (
+                            id,
+                            email,
+                            student_name,
+                            student_program,
+                            project_title,
+                            project_thesis_ug,
+                            project_thesis_pg,
+                            roll_numbers,
+                            student_names,
+                            other_supervisors,
+                            external_supervisors,
+                            start_date,
+                            end_date,
+                            is_ongoing
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         [
                             params.id,
                             params.email,
                             params.student_name,
                             params.student_program,
-                            params.project_topic,
-                            params.start_year,
-                            params.completion_year,
+                            params.project_title,
+                            params.project_thesis_ug || null,
+                            params.project_thesis_pg || null,
+                            params.roll_numbers || null,
+                            params.student_names || null,
+                            params.other_supervisors || null,
+                            params.external_supervisors || null,
+                            params.start_date,
+                            params.end_date || null,
+                            params.is_ongoing ? 1 : 0
                         ]
-                    )
-                    return res.json(result)
-                }
+                    );
+                    return res.json(result);
+                 }
                 else if (type === 'patent') {
                     try {
                         const publicationId = generatePublicationId(params.email);
@@ -370,7 +391,7 @@ const handler = async (req, res ) => {
                             params.title,
                             params.description,
                             params.patent_date,
-                            session.user.email
+                            session.user.email                           
                         ]);
                         // Insert the patent record into the database
                         const result = await query(
