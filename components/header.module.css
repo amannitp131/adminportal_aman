@@ -77,3 +77,8 @@
     border-color: #aaa;
     color: #333;
 }
+
+.link {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit text color */
+}

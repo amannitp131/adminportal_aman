@@ -1,10 +1,10 @@
 import Header from './header'
 import Footer from './footer'
 
-export default function Layout({ children }) {
+export default function Layout({ children ,session}) {
     return (
         <>
-            <Header />
+            <Header session={session} />
             <main>{children}</main>
             <Footer />
         </>

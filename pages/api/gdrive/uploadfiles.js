@@ -21,46 +21,51 @@ const bufferToStream = (buffer) => {
 const router = createRouter();
 
 router.post(upload.array('files'), async (req, res) => {
-    // Fetch session using `getServerSession`
-    const session = await getServerSession(req, res, authOptions);
+    try {
+        const oAuth2Client = await authorize(); // Get the authorized client
 
-    if (!session) {
-        return res.status(401).send('Unauthorized');
-    }
+        const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
-    const drive = google.drive({ version: 'v3', auth: authorize() });
+        const files = req.files;
+        if (!files || files.length === 0) {
+            return res.status(400).send('No files uploaded.');
+        }
 
-    const files = req.files;
-    if (!files || files.length === 0) {
-        return res.status(400).send('No files uploaded.');
-    }
+        const finalResult = [];
+        for (const file of files) {
+            console.log(file);
+            const bufferStream = bufferToStream(file.buffer);
+            const requestBody = { name: file.originalname, parents: [process.env.FOLDER_ID] };
+            const media = { mimeType: file.mimetype, body: bufferStream };
 
-    const finalResult = [];
-    for (const file of files) {
-        const bufferStream = bufferToStream(file.buffer);
-        const requestBody = { name: file.originalname, parents: [process.env.FOLDER_ID] };
-        const media = { mimeType: file.mimetype, body: bufferStream };
-
-        try {
-            const result = await drive.files.create({
-                requestBody,
-                media,
-                fields: 'id,name,webViewLink',
-            });
-            finalResult.push(result.data);
-        } catch (uploadError) {
-            console.error('Upload error:', uploadError.message);
-            if (uploadError.message.includes('Invalid Credentials')) {
-                await getAccessToken();
+            try {
+                console.log('Uploading file:', file.originalname);
+                const result = await drive.files.create({
+                    requestBody,
+                    media,
+                    fields: 'id,name,webViewLink',
+                });
+                finalResult.push(result.data);
+            } catch (uploadError) {
+                console.error('Upload error:', uploadError.message);
+                if (uploadError.message.includes('Invalid Credentials')) {
+                    await getAccessToken();
+                }
             }
         }
-    }
 
-    if (finalResult.length === 0) {
-        return res.status(500).json({ error: 'All uploads failed.' });
-    }
+        if (finalResult.length === 0) {
+            console.log("Error in uploading", finalResult);
+            return res.status(500).json({ error: 'All uploads failed.' });
+        }
 
-    return res.status(200).json(finalResult);
+        return res.status(200).json(finalResult);
+
+    } catch (error) {
+        console.error('Error in authorization or upload:', error);
+        return res.status(500).json({ error: 'Authorization or upload failed.' });
+    }
 });
+
 
 export default router.handler();
