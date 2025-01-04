@@ -24,7 +24,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import { AddForm } from './notices-props/add-form'
 import { EditForm } from './notices-props/edit-form'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import PropTypes from 'prop-types'
 import FirstPageIcon from '@material-ui/icons/FirstPage'
 import LastPageIcon from '@material-ui/icons/LastPage'

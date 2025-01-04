@@ -11,6 +11,7 @@ export const ConfirmDelete = ({
     main_notice,
     attachments,
     delArray,
+    session
 }) => {
     const deleteEvent = async () => {
         const deleteArray = [...delArray]
@@ -44,7 +45,7 @@ export const ConfirmDelete = ({
 
         let result = await fetch('/api/delete/notice', {
             method: 'DELETE',
-            body: id.toString(),
+            body: JSON.stringify({session:session,id:id.toString()}),
         })
         result = await result.json()
         if (result instanceof Error) {

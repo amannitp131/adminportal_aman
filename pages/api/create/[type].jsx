@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next'
 import { getSession } from 'next-auth/react'
 import { query } from '../../../lib/db'
-
+import { useSession } from 'next-auth/react';
 function generatePublicationId(email) {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
     const randomString = Math.random().toString(36).substring(2, 10); // Random alphanumeric string
@@ -10,10 +10,12 @@ function generatePublicationId(email) {
 
 
 const handler = async (req, res ) => {
+    // const { data: session, status } = useSession();
+    // const loading = status === "loading";
     let params = req.body;
     let session=params.session;
     console.log('Session:', session);
-    console.log('Request:', req.body);
+    console.log('Request:', req.body.data);
     if (!session) {
     console.log({ message: 'You are not authorized' });
     }
@@ -52,6 +54,7 @@ const handler = async (req, res ) => {
                 session.user.role === 4
             ) {
                 if (type == 'notice') {
+                    
                     params.attachments = JSON.stringify(params.attachments)
                     params.main_attachment = JSON.stringify(
                         params.main_attachment
@@ -61,20 +64,20 @@ const handler = async (req, res ) => {
                         `INSERT INTO notices (id,title,timestamp,openDate,closeDate,important,attachments,email,isVisible,notice_link,notice_type,department,updatedBy,updatedAt) VALUES ` +
                             `(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                         [
-                            params.id,
-                            params.title,
-                            params.timestamp,
-                            params.openDate,
-                            params.closeDate,
-                            params.important,
-                            params.attachments,
-                            params.email,
-                            params.isVisible,
-                            params.main_attachment,
-                            params.notice_type,
-                            params.department,
-                            params.email,
-                            params.timestamp,
+                            params.data.id,
+                            params.data.title,
+                            params.data.timestamp,
+                            params.data.openDate,
+                            params.data.closeDate,
+                            params.data.important,
+                            JSON.stringify(params.data.attachments),
+                            params.data.email,
+                            params.data.isVisible,
+                            JSON.stringify(params.data.main_attachment),
+                            params.data.notice_type,
+                            params.data.department,
+                            params.data.email,
+                            params.data.timestamp,
                         ]
                     ).catch((err) => console.log(err))
                     return res.json(result)

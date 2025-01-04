@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import { MainAttachment } from './../common-props/main-attachment'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-attachment'
 import { fileUploader } from './../common-props/useful-functions'
@@ -55,6 +55,7 @@ export const AddForm = ({ handleClose, modal }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        try{
         setSubmitting(true)
         let open = new Date(content.openDate)
         let close = new Date(content.closeDate)
@@ -118,7 +119,7 @@ export const AddForm = ({ handleClose, modal }) => {
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({session:session,data:data}),              
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -143,8 +144,12 @@ export const AddForm = ({ handleClose, modal }) => {
                 console.log(result)
             }
         }
-
+    }
+    finally{
+        setSubmitting(false)
         window.location.reload()
+    }
+        
     }
 
     return (
