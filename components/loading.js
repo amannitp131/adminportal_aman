@@ -1,0 +1,57 @@
+import styled from 'styled-components';
+import Image from 'next/image';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import { CircularProgress } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import CardActions from '@material-ui/core/CardActions';
+
+const Home = styled.div`
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .image {
+        z-index: -1;
+        position: absolute;
+    }
+    .card {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        width: 300px;
+    }
+    .title {
+        font-size: 24px;
+    }
+`;
+
+const Loading = () => {
+    return (
+        <Home>
+            <Image
+                className="image"
+                src="/nitp.png"
+                layout="intrinsic"  // Replaced 'fill' with 'intrinsic' for better behavior in Next.js
+                quality={100}
+                width={500}  // Set an explicit width for proper image rendering
+                height={500} // Set an explicit height for proper image rendering
+            />
+            <Card className="card">
+                <CardContent>
+                    <Image src="/logo512.png" width="100" height="100" />
+                    <Typography className="title" color="secondary">
+                        Loading
+                    </Typography>
+                    <CardActions className="card">
+                        <CircularProgress color="secondary" />
+                    </CardActions>
+                </CardContent>
+            </Card>
+        </Home>
+    );
+};
+
+export default Loading;
