@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import DataDisplay from '@/components/display-innovation'
 import { useEntries } from '@/lib/swr-hook'
 import LoadAnimation from '@/components/loading'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Loading from '../components/loading'
 import Sign from '../components/signin'
@@ -20,6 +20,9 @@ export default function Page() {
     // const { entries, isLoading } = useEntries('/api/innovation/all');
     const [isLoading, setIsLoading] = useState(true)
     const [entries, setEntries] = useState({})
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
+    const router = useRouter()
     useEffect(() => {
         fetch('/api/innovation/between', {
             method: 'POST',
@@ -28,6 +31,7 @@ export default function Page() {
                 Accept: 'application/json',
             },
             body: JSON.stringify({
+                session: session,
                 from: 0,
                 to: 15,
             }),
@@ -39,12 +43,12 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const [session, loading] = useSession()
-    const router = useRouter()
+    
 
     if (typeof window !== 'undefined' && loading) return <Loading />
 
     if (session) {
+        
         return (
             <>
                 {session.user.role == 1 ? (
