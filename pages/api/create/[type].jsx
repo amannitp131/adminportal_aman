@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next'
 import { getSession } from 'next-auth/react'
 import { query } from '../../../lib/db'
-
+import { useSession } from 'next-auth/react'
 function generatePublicationId(email) {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
     const randomString = Math.random().toString(36).substring(2, 10); // Random alphanumeric string
@@ -13,7 +13,7 @@ const handler = async (req, res ) => {
     let params = req.body;
     let session=params.session;
     console.log('Session:', session);
-    console.log('Request:', req.body);
+    console.log('Request:', req.body.data);
     if (!session) {
     console.log({ message: 'You are not authorized' });
     }
@@ -55,26 +55,26 @@ const handler = async (req, res ) => {
                     params.attachments = JSON.stringify(params.attachments)
                     params.main_attachment = JSON.stringify(
                         params.main_attachment
-                    )
+                    ) 
                     params.timestamp = new Date().getTime()
                     let result = await query(
                         `INSERT INTO notices (id,title,timestamp,openDate,closeDate,important,attachments,email,isVisible,notice_link,notice_type,department,updatedBy,updatedAt) VALUES ` +
                             `(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                         [
-                            params.id,
-                            params.title,
-                            params.timestamp,
-                            params.openDate,
-                            params.closeDate,
-                            params.important,
-                            params.attachments,
-                            params.email,
-                            params.isVisible,
-                            params.main_attachment,
-                            params.notice_type,
-                            params.department,
-                            params.email,
-                            params.timestamp,
+                            params.data.id,
+                            params.data.title,
+                            params.data.timestamp,
+                            params.data.openDate,
+                            params.data.closeDate,
+                            params.data.important,
+                            params.data.attachments,
+                            params.data.email,
+                            params.data.isVisible,
+                            params.data.main_attachment,
+                            params.data.notice_type,
+                            params.data.department,
+                            params.data.email,
+                            params.data.timestamp,
                         ]
                     ).catch((err) => console.log(err))
                     return res.json(result)
@@ -165,20 +165,22 @@ const handler = async (req, res ) => {
                         `INSERT INTO news (id,title,timestamp,openDate,closeDate,description,image,attachments,author,email,updatedBy,updatedAt) VALUES ` +
                             `(?,?,?,?,?,?,?,?,?,?,?,?)`,
                         [
-                            params.id,
-                            params.title,
-                            params.timestamp,
-                            params.openDate,
-                            params.closeDate,
-                            params.description,
-                            params.image,
-                            params.add_attach,
-                            params.author,
-                            params.email,
-                            params.email,
-                            params.timestamp,
+                            params.data.id,
+                            params.data.title,
+                            params.data.timestamp,
+                            params.data.openDate,
+                            params.data.closeDate,
+                            params.data.description,
+                            JSON.stringify(params.data.attachments),
+                            params.data.image,
+                            params.data.add_attach,
+                            params.data.author,
+                            JSON.stringify(params.data.main_attachment),
+                            params.data.email,
+                            params.data.email,
+                            params.data.timestamp,
                         ]
-                    )
+                    ).catch((err) => console.log(err))
                     return res.json(result)
                 }
             }

@@ -1,84 +1,83 @@
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import React from 'react'
+import PropTypes from 'prop-types';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import React from 'react';
 
 export const ConfirmDelete = ({
     handleClose,
     modal,
     id,
-    attachments,
-    add_attach,
-    delArray,
+    attachments = [],
+    add_attach = [],
+    delArray = [],
+    session,
+    setSubmitting,
+    onDeleteSuccess,
 }) => {
     const deleteEvent = async () => {
-        const deleteArray = [...delArray]
+        try {
+            const deleteArray = [
+                ...delArray,
+                ...attachments.filter((el) => el.url).map((el) => el.url.split('/')[5]),
+                ...add_attach.filter((el) => el.url).map((el) => el.url.split('/')[5]),
+            ];
 
-        if (attachments.length) {
-            for (let i = 0; i < attachments.length; i++) {
-                const element = attachments[i]
-                if (element.url) deleteArray.push(element.url.split('/')[5])
+            if (deleteArray.length) {
+                const fileDeleteResponse = await fetch('/api/gdrive/deletefiles', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(deleteArray),
+                });
+                if (!fileDeleteResponse.ok) {
+                    throw new Error('File deletion failed.');
+                }
             }
-        }
 
-        if (add_attach.length) {
-            for (let i = 0; i < add_attach.length; i++) {
-                const element = add_attach[i]
-                if (element.url && element.url.split('/')[5])
-                    deleteArray.push(element.url.split('/')[5])
-            }
-        }
-
-        if (deleteArray.length) {
-            let result = await fetch('/api/gdrive/deletefiles', {
+            const newsDeleteResponse = await fetch('/api/delete/news', {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(deleteArray),
-            })
-            result = await result.json()
-            if (result instanceof Error) {
-                console.log('Error Occured')
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session, id: id.toString() }),
+            });
+            if (!newsDeleteResponse.ok) {
+                throw new Error('News deletion failed.');
             }
-            console.log(result)
-        }
 
-        let result = await fetch('/api/delete/news', {
-            method: 'DELETE',
-            body: id.toString(),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
+            console.log('Deletion successful.');
+            onDeleteSuccess();
+        } catch (error) {
+            console.error('Deletion error:', error);
+        } finally {
+            setSubmitting && setSubmitting(false);
         }
-        console.log(result)
-
-        window.location.reload()
-    }
+    };
 
     return (
-        <div>
-            <Dialog open={modal} onClose={handleClose}>
-                <DialogTitle id="alert-dialog-title">
-                    {'Do you want to Delete This News ?'}
-                </DialogTitle>
+        <Dialog open={modal} onClose={handleClose}>
+            <DialogTitle id="alert-dialog-title">
+                {'Do you want to Delete This News ?'}
+            </DialogTitle>
+            <DialogActions>
+                <Button variant="contained" onClick={deleteEvent} color="secondary">
+                    Delete
+                </Button>
+                <Button onClick={handleClose} color="primary">
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+};
 
-                <DialogActions>
-                    <Button
-                        variant="contained"
-                        onClick={() => deleteEvent()}
-                        color="secondary"
-                    >
-                        Delete
-                    </Button>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    )
-}
+ConfirmDelete.propTypes = {
+    handleClose: PropTypes.func.isRequired,
+    modal: PropTypes.bool.isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    attachments: PropTypes.array,
+    add_attach: PropTypes.array,
+    delArray: PropTypes.array,
+    session: PropTypes.object.isRequired,
+    setSubmitting: PropTypes.func,
+    onDeleteSuccess: PropTypes.func.isRequired,
+};

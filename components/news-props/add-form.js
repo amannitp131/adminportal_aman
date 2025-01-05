@@ -4,7 +4,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments as AddImage } from './../common-props/add-image'
 import { AddAttachments } from './../common-props/add-attachment'
@@ -36,6 +36,7 @@ export const AddForm = ({ handleClose, modal }) => {
     }
 
     const handleSubmit = async (e) => {
+        try{
         setSubmitting(true)
         e.preventDefault()
         let open = new Date(content.openDate)
@@ -94,7 +95,8 @@ export const AddForm = ({ handleClose, modal }) => {
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            // body: JSON.stringify(data),
+            body: JSON.stringify({session:session,data:data}), 
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -111,17 +113,19 @@ export const AddForm = ({ handleClose, modal }) => {
             }
             let result = await fetch('/api/broadcast', {
                 method: 'POST',
-                body: JSON.stringify(data),
+                body: JSON.stringify({session:session, data:data}),
             })
             result = await result.json()
             if (result instanceof Error) {
                 alert('Event created but an error occured while sending mail')
                 console.log(result)
             }
-        }
-
+        }}
+finally{
+    setSubmitting(false)
         window.location.reload()
     }
+}
 
     return (
         <>
