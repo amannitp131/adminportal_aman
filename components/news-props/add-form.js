@@ -10,7 +10,7 @@ import { AddAttachments as AddImage } from './../common-props/add-image'
 import { AddAttachments } from './../common-props/add-attachment'
 import { fileUploader } from './../common-props/useful-functions'
 import { BroadcastMail } from './../common-props/send-broadcast-mail'
-// hi 
+
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session, status } = useSession();
     const loading = status === "loading";
