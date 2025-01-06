@@ -20,7 +20,7 @@ import {
 } from '@material-ui/icons'
 import React, { useState, useEffect } from 'react'
 import { DescriptionModal } from './common-props/description-modal'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { AddForm } from './news-props/add-form'
 import { EditForm } from './news-props/edit-form'
 import Filter from './common-props/filter'
@@ -112,7 +112,7 @@ function TablePaginationActions(props) {
             </IconButton>
             <IconButton
                 onClick={handleNextButtonClick}
-                // disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
                 aria-label="next page"
             >
                 {theme.direction === 'rtl' ? (
@@ -123,7 +123,7 @@ function TablePaginationActions(props) {
             </IconButton>
             <IconButton
                 onClick={handleLastPageButtonClick}
-                // disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
                 aria-label="last page"
             >
                 {theme.direction === 'rtl' ? (

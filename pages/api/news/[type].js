@@ -1,5 +1,5 @@
 import { query } from '../../../lib/db'
-
+import { useSession } from 'next-auth/react'
 const handler = async (req, res) => {
     const { type } = req.query
 

@@ -29,7 +29,7 @@ const Home = styled.div`
     }
 `
 
-const Unauthorise = () => {
+export default function Unauthorise() {
     return (
         <Home>
             <Image
@@ -56,5 +56,3 @@ const Unauthorise = () => {
         </Home>
     )
 }
-
-export default Unauthorise
