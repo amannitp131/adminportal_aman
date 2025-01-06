@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import { Edit } from '@material-ui/icons'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { useSession,getSession } from 'next-auth/react';
+import { useSession, getSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import AddBib from './profile/addBib'
@@ -152,7 +152,7 @@ const Profile = styled.div`
     }
 `
 
-const SubjectRow = ({ item , session}) => {
+const SubjectRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -209,7 +209,7 @@ const SubjectRow = ({ item , session}) => {
     )
 }
 
-const MemAndSocRow = ({ item , session}) => {
+const MemAndSocRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -274,7 +274,7 @@ const MemAndSocRow = ({ item , session}) => {
     )
 }
 
-const EducationRow = ({ item , session}) => {
+const EducationRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -325,7 +325,7 @@ const EducationRow = ({ item , session}) => {
     )
 }
 
-const CurrAdminRow = ({ item , session}) => {
+const CurrAdminRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -380,7 +380,7 @@ const CurrAdminRow = ({ item , session}) => {
     )
 }
 
-const PastAdminRow = ({ item , session}) => {
+const PastAdminRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -442,7 +442,7 @@ const PastAdminRow = ({ item , session}) => {
     )
 }
 
-const WorkExpRow = ({ item , session}) => {
+const WorkExpRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -507,7 +507,7 @@ const WorkExpRow = ({ item , session}) => {
     )
 }
 
-const ProServiceRow = ({ item , session}) => {
+const ProServiceRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -548,7 +548,7 @@ const ProServiceRow = ({ item , session}) => {
     )
 }
 
-const ProjectRow = ({ item , session}) => {
+const ProjectRow = ({ item, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -616,7 +616,7 @@ const ProjectRow = ({ item , session}) => {
     )
 }
 
-const PhdCandidRow = ({ item, index,session }) => {
+const PhdCandidRow = ({ item, index, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
@@ -677,38 +677,54 @@ const PhdCandidRow = ({ item, index,session }) => {
     )
 }
 
-const Pg_UgProjRow = ({ item, index }) => {
+const Pg_UgProjRow = ({ item, index, session }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
 
-    const openDeleteModal = () => {
-        setDeleteModal(true)
-    }
-    const handleCloseDeleteModal = () => {
-        setDeleteModal(false)
-    }
+    const openDeleteModal = () => setDeleteModal(true)
+    const handleCloseDeleteModal = () => setDeleteModal(false)
 
     const openEditModal = () => setEditModal(true)
     const handleCloseEditModal = () => setEditModal(false)
+
     return (
         <tr>
             <td>
                 <p>{index + 1}</p>
             </td>
             <td>
-                <p>{item.student_name}</p>
+                <p>{item.student_names}</p>
             </td>
             <td>
                 <p>{item.student_program}</p>
             </td>
             <td>
-                <p>{item.project_topic}</p>
+                <p>{item.project_title}</p>
+            </td>
+            {item.student_program === 'UG' && (
+                <td>
+                    <p>{item.project_thesis_ug || 'N/A'}</p>
+                </td>
+            )}
+            {item.student_program === 'PG' && (
+                <td>
+                    <p>{item.project_thesis_pg || 'N/A'}</p>
+                </td>
+            )}
+            <td>
+                <p>{item.roll_numbers}</p>
             </td>
             <td>
-                <p>{item.start_year}</p>
+                <p>{item.other_supervisors || 'None'}</p>
             </td>
             <td>
-                <p>{item.completion_year}</p>
+                <p>{item.external_supervisors || 'None'}</p>
+            </td>
+            <td>
+                <p>{item.start_date}</p>
+            </td>
+            <td>
+                <p>{item.is_ongoing ? 'Ongoing' : item.end_date || 'N/A'}</p>
             </td>
             <td>
                 <IconButton onClick={openEditModal}>
@@ -721,11 +737,7 @@ const Pg_UgProjRow = ({ item, index }) => {
                 />
             </td>
             <td>
-                {' '}
-                <IconButton
-                    aria-label="delete"
-                    onClick={() => openDeleteModal()}
-                >
+                <IconButton aria-label="delete" onClick={openDeleteModal}>
                     <DeleteIcon />
                 </IconButton>
                 <ConfirmDelete
@@ -740,10 +752,10 @@ const Pg_UgProjRow = ({ item, index }) => {
     )
 }
 
-export default function Profilepage({details}) {
-    const { result, session } = details;
-    
-    console.log('Profile Page starting :' , session)
+export default function Profilepage({ details }) {
+    const { result, session } = details
+
+    console.log('Profile Page starting :', session)
     // const { data: session, status } = useSession();
     // const[loading, setLoading] = useState(false);
     const [detail, setDetails] = useState(result)
@@ -755,57 +767,63 @@ export default function Profilepage({details}) {
         Vidwan: 'Not provided',
         Orcid: 'Not provided',
     })
-   // Safely check for publications before accessing
-   const [publications, setPublications] = useState(
-    result?.publications && Array.isArray(result.publications) && result.publications.length > 0
-        ? JSON.parse(result.publications[0].publications) || []
-        : []
-);
-    console.log("result publication :",result.publications)
+    // Safely check for publications before accessing
+    const [publications, setPublications] = useState(
+        result?.publications &&
+            Array.isArray(result.publications) &&
+            result.publications.length > 0
+            ? JSON.parse(result.publications[0].publications) || []
+            : []
+    )
+    console.log('result publication :', result.publications)
 
-   
     useEffect(() => {
         if (result) {
-            setDetails(result);
+            setDetails(result)
             setSocialMediaLinks({
                 Linkedin: result.profile?.linkedin || 'Not provided',
-                'Google Scholar': result.profile?.google_scholar || 'Not provided',
-                'Personal Webpage': result.profile?.personal_webpage || 'Not provided',
+                'Google Scholar':
+                    result.profile?.google_scholar || 'Not provided',
+                'Personal Webpage':
+                    result.profile?.personal_webpage || 'Not provided',
                 Scopus: result.profile?.scopus || 'Not provided',
                 Vidwan: result.profile?.vidwan || 'Not provided',
                 Orcid: result.profile?.orcid || 'Not provided',
-            });
+            })
         }
-    }, [result?.profile]);  // Ensure that result.details is loaded before setting the links
-    
+    }, [result?.profile]) // Ensure that result.details is loaded before setting the links
 
-// Handle publications
-useEffect(() => {
-    if (result?.publications && Array.isArray(result.publications) && result.publications.length > 0) {
-        const parsedPublications = result.publications.flatMap((item) => {
-            try {
-                return JSON.parse(item.publications); // Parse JSON string into objects
-            } catch (error) {
-                console.error('Error parsing publications:', error);
-                return []; // Skip invalid publications
-            }
-        });
+    // Handle publications
+    useEffect(() => {
+        if (
+            result?.publications &&
+            Array.isArray(result.publications) &&
+            result.publications.length > 0
+        ) {
+            const parsedPublications = result.publications.flatMap((item) => {
+                try {
+                    return JSON.parse(item.publications) // Parse JSON string into objects
+                } catch (error) {
+                    console.error('Error parsing publications:', error)
+                    return [] // Skip invalid publications
+                }
+            })
 
-       console.log('Parsed Publications:', parsedPublications);
+            console.log('Parsed Publications:', parsedPublications)
 
-        setPublications(parsedPublications.length > 0 ? parsedPublications : []);
-    } else {
-        console.log('No publications found in result.');
-        setPublications([]);
-    }
-}, [result?.publications]);
-    
+            setPublications(
+                parsedPublications.length > 0 ? parsedPublications : []
+            )
+        } else {
+            console.log('No publications found in result.')
+            setPublications([])
+        }
+    }, [result?.publications])
 
     //console.log('Session here in profile page:', session)
     if (!session) {
-        return <div>Please log in to view your profile.</div>;
+        return <div>Please log in to view your profile.</div>
     }
-    
 
     const [addSocialMediaModal, setAddSocialMediaModal] = useState(false)
     const addSocialMediaModalOpen = () => {
@@ -935,15 +953,19 @@ useEffect(() => {
                         <div className="faculty-img-wrap">
                             <img
                                 src={
-                                        detail && detail.profile && detail.profile.image
-                                            ? detail.profile.image
-                                            : '/faculty.png'
+                                    detail &&
+                                    detail.profile &&
+                                    detail.profile.image
+                                        ? detail.profile.image
+                                        : '/faculty.png'
                                 }
                                 alt="faculty"
                             />
                         </div>
                         <a
-                            href={`mailto:${detail?.profile?.email || 'default@example.com'}`}
+                            href={`mailto:${
+                                detail?.profile?.email || 'default@example.com'
+                            }`}
                             target="blank"
                         >
                             {/* <img src={mail} className="img-fluid facmail" /> */}
@@ -1093,45 +1115,63 @@ useEffect(() => {
                 })}
             </div> */}
 
-<div className="fac-card" data-aos="fade-up" style={{ position: `relative` }}>
-        <h3>Social Media Links</h3>
-        <Button
-            color="primary"
-            variant="contained"
-            onClick={() => addSocialMediaModalOpen()}
-            style={{
-                position: `absolute`,
-                top: `5px`,
-                right: `5px`,
-            }}
-        >
-            Edit
-        </Button>
-        <AddSocialMediaForm
-            handleClose={handleCloseSocialMediaAddModal}
-            modal={addSocialMediaModal}
-            links={social_media_links}
-            session={session}
-            result={result}
-        />
-            <div className="factable">
-    <table>
-        <tr>
-            <td><h4>Website</h4></td>
-            <td><h4>Profile Link</h4></td>
-            <td></td>
-        </tr>
-        {Object.keys(social_media_links).map((key) => (
-            <tr key={key}>
-                <td><p>{key}</p></td>
-                <td><p>{social_media_links[key]}</p></td>
-            </tr>
-        ))}
-    </table>
-</div>
-
-
-    </div>
+                        <div
+                            className="fac-card"
+                            data-aos="fade-up"
+                            style={{ position: `relative` }}
+                        >
+                            <h3>Social Media Links</h3>
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                onClick={() => addSocialMediaModalOpen()}
+                                style={{
+                                    position: `absolute`,
+                                    top: `5px`,
+                                    right: `5px`,
+                                }}
+                            >
+                                Edit
+                            </Button>
+                            <AddSocialMediaForm
+                                handleClose={handleCloseSocialMediaAddModal}
+                                modal={addSocialMediaModal}
+                                links={social_media_links}
+                                session={session}
+                                result={result}
+                            />
+                            <div className="factable">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <h4>Website</h4>
+                                        </td>
+                                        <td>
+                                            <h4>Profile Link</h4>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    {Object.keys(social_media_links).map(
+                                        (key) => (
+                                            <tr key={key}>
+                                                <td>
+                                                    <p>{key}</p>
+                                                </td>
+                                                <td>
+                                                    <p>
+                                                        {
+                                                            social_media_links[
+                                                                key
+                                                            ]
+                                                        }
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </table>
+                            </div>
+                        </div>
                         <div
                             className="fac-card"
                             data-aos="fade-up"
@@ -1174,7 +1214,10 @@ useEffect(() => {
                                     </tr>
                                     {detail.subjects_teaching &&
                                         detail.subjects_teaching.map((item) => (
-                                            <SubjectRow item={item} session={session} />
+                                            <SubjectRow
+                                                item={item}
+                                                session={session}
+                                            />
                                         ))}
                                 </table>
                             </div>
@@ -1220,7 +1263,10 @@ useEffect(() => {
                                     </tr>
                                     {detail.memberships &&
                                         detail.memberships.map((item) => (
-                                            <MemAndSocRow item={item} session={session} />
+                                            <MemAndSocRow
+                                                item={item}
+                                                session={session}
+                                            />
                                         ))}
                                 </table>
                             </div>
@@ -1263,7 +1309,10 @@ useEffect(() => {
                                     </tr>
                                     {detail.education &&
                                         detail.education.map((item) => (
-                                            <EducationRow item={item} session={session} />
+                                            <EducationRow
+                                                item={item}
+                                                session={session}
+                                            />
                                         ))}
                                 </table>
                             </div>
@@ -1304,7 +1353,10 @@ useEffect(() => {
                                     {detail.curr_admin_responsibility &&
                                         detail.curr_admin_responsibility.map(
                                             (item) => (
-                                                <CurrAdminRow item={item} session={session} />
+                                                <CurrAdminRow
+                                                    item={item}
+                                                    session={session}
+                                                />
                                             )
                                         )}
                                 </table>
@@ -1386,7 +1438,10 @@ useEffect(() => {
                                     {detail.past_admin_responsibility &&
                                         detail.past_admin_responsibility.map(
                                             (item) => (
-                                                <PastAdminRow item={item} session={session} />
+                                                <PastAdminRow
+                                                    item={item}
+                                                    session={session}
+                                                />
                                             )
                                         )}
                                 </table>
@@ -1470,7 +1525,10 @@ useEffect(() => {
                                     </tr>
                                     {detail.work_experience &&
                                         detail.work_experience.map((item) => (
-                                            <WorkExpRow item={item} session={session} />
+                                            <WorkExpRow
+                                                item={item}
+                                                session={session}
+                                            />
                                         ))}
                                 </table>
                             </div>
@@ -1500,7 +1558,10 @@ useEffect(() => {
                             />
                             {detail.professional_service &&
                                 detail.professional_service.map((item) => (
-                                    <ProServiceRow item={item} session={session} />
+                                    <ProServiceRow
+                                        item={item}
+                                        session={session}
+                                    />
                                 ))}
                         </div>
 
@@ -1587,7 +1648,10 @@ useEffect(() => {
                                     </tr>
                                     {detail.project &&
                                         detail.project.map((item) => (
-                                            <ProjectRow item={item} session={session} />
+                                            <ProjectRow
+                                                item={item}
+                                                session={session}
+                                            />
                                         ))}
                                 </table>
                             </div>
@@ -1619,7 +1683,7 @@ useEffect(() => {
                                         : ''
                                 }
                             />
-                            
+
                             <AddPublications
                                 published={publications}
                                 handleClose={handleCloseAddModal10}
@@ -1627,7 +1691,6 @@ useEffect(() => {
                                 session={session}
                             />
                             {publications?.length > 0 ? (
-                                
                                 <ShowPublications
                                     publications={publications}
                                     setPublications={setPublications}
@@ -1636,7 +1699,6 @@ useEffect(() => {
                             ) : (
                                 <p>No publications available.</p> // Optional: Provide feedback if no publications exist
                             )}
-
                         </div>
                         <div
                             className="fac-card"
@@ -1683,9 +1745,9 @@ useEffect(() => {
                                         detail.phd_candidates.map(
                                             (item, index) => (
                                                 <PhdCandidRow
-                                                    item={item} session={session}
+                                                    item={item}
+                                                    session={session}
                                                     index={index}
-
                                                 />
                                             )
                                         )}
@@ -1704,9 +1766,9 @@ useEffect(() => {
                                 variant="contained"
                                 onClick={() => addModalOpen11()}
                                 style={{
-                                    position: `absolute`,
-                                    top: `5px`,
-                                    right: `5px`,
+                                    position: 'absolute',
+                                    top: '5px',
+                                    right: '5px',
                                 }}
                             >
                                 Add
@@ -1718,33 +1780,65 @@ useEffect(() => {
 
                             <div className="factable">
                                 <table>
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            <h4>Student Name</h4>
-                                        </td>
-                                        <td>
-                                            <h4>Student Program</h4>
-                                        </td>
-                                        <td>
-                                            <h4>Project Topic</h4>
-                                        </td>
-                                        <td>
-                                            <h4>Start Year</h4>
-                                        </td>
-                                        <td>
-                                            <h4>Completion Year</h4>
-                                        </td>
-                                    </tr>
-                                    {detail.pg_ug_projects &&
-                                        detail.pg_ug_projects.map(
-                                            (item, index) => (
-                                                <Pg_UgProjRow
-                                                    item={item} session={session}
-                                                    index={index}
-                                                />
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>
+                                                <h4>Student Name(s)</h4>
+                                            </th>
+                                            <th>
+                                                <h4>Program</h4>
+                                            </th>
+                                            <th>
+                                                <h4>Project Title</h4>
+                                            </th>
+                                            <th>
+                                                <h4>Project Thesis</h4>
+                                            </th>
+                                            <th>
+                                                <h4>Roll Numbers</h4>
+                                            </th>
+                                            <th>
+                                                <h4>Other Supervisors</h4>
+                                            </th>
+                                            <th>
+                                                <h4>External Supervisors</h4>
+                                            </th>
+                                            <th>
+                                                <h4>Start Date</h4>
+                                            </th>
+                                            <th>
+                                                <h4>End Date</h4>
+                                            </th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {detail.pg_ug_projects &&
+                                        detail.pg_ug_projects.length > 0 ? (
+                                            detail.pg_ug_projects.map(
+                                                (item, index) => (
+                                                    <Pg_UgProjRow
+                                                        key={item.id || index}
+                                                        item={item}
+                                                        session={session}
+                                                        index={index}
+                                                    />
+                                                )
                                             )
+                                        ) : (
+                                            <tr>
+                                                <td
+                                                    colSpan="11"
+                                                    style={{
+                                                        textAlign: 'center',
+                                                    }}
+                                                >
+                                                    No projects available.
+                                                </td>
+                                            </tr>
                                         )}
+                                    </tbody>
                                 </table>
                             </div>
                         </div>

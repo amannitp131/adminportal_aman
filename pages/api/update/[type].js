@@ -1,12 +1,14 @@
 import { NextApiHandler } from 'next';
 import { query } from '../../../lib/db';
-// import { getSession } from 'next-auth/';
+
 
 const handler = async (req, res) => {
     const session = req.body.session;
 
     if (session) {
-        const { type } = req.query;
+
+        const { type } = req.query; // Extract the type from the query parameters
+
         try {
             const params = req.body;
 
@@ -43,17 +45,17 @@ const handler = async (req, res) => {
                     const result = await query(
                         `UPDATE notices SET title=?, updatedAt=?, openDate=?, closeDate=?, important=?, attachments=?, notice_link=?, isVisible=?, updatedBy=?, notice_type=? WHERE id=?`,
                         [
-                            params.title,
-                            params.timestamp,
-                            params.openDate,
-                            params.closeDate,
-                            params.important,
-                            params.attachments,
-                            params.notice_link,
-                            params.isVisible,
-                            params.email,
-                            params.notice_type,
-                            params.id,
+                            params.data.title,
+                            params.data.timestamp,
+                            params.data.openDate,
+                            params.data.closeDate,
+                            params.data.important,
+                            JSON.stringify(params.data.attachments),
+                            params.data.notice_link,
+                            params.data.isVisible,
+                            params.data.email,
+                            params.data.notice_type,
+                            params.data.id,
                         ]
                     );
                     return res.json(result);
@@ -124,7 +126,9 @@ const handler = async (req, res) => {
 
             if (type === 'user' && (session.user.role === 1 || session.user.email === params.email)) {
                 if (params.update_social_media_links) {
-                    const result = await query(
+
+                    let result = await query(
+
                         'UPDATE users SET linkedin=?, google_scholar=?, personal_webpage=?, scopus=?, vidwan=?, orcid=? WHERE email=?',
                         [
                             params.Linkedin ? params.Linkedin : '',
@@ -138,7 +142,9 @@ const handler = async (req, res) => {
                     );
                     return res.json(result);
                 } else {
-                    const result = await query(
+
+                    let result = await query(
+
                         `UPDATE users SET name=?, email=?, role=?, department=?, designation=?, ext_no=?, administration=?, research_interest=? WHERE id=?`,
                         [
                             params.name,
@@ -229,14 +235,18 @@ const handler = async (req, res) => {
                     });
                     return res.json(result);
                 } else if (type == 'publications') {
-                    params.data = JSON.stringify(params.data);
-                    const result = await query(
+
+                    console.log(params.data)
+                    params.data = JSON.stringify(params.data)
+                    let result = await query(
                         `UPDATE publications SET publications=? WHERE email=? AND publication_id=?`,
                         [params.data, params.email, params.publication_id]
-                    ).catch((err) => console.log(err));
-                    return res.json(result);
+                    ).catch((err) => console.log(err))
+                    // console.log(result)
+                    return res.json(result)
                 } else if (type == 'project') {
-                    const result = await query(
+                    let result = await query(
+
                         `UPDATE project SET project=?,sponsor=?,amount=?,start=?,end=? WHERE email=? AND id=?`,
                         [
                             params.project,

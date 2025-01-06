@@ -55,6 +55,7 @@ export const AddForm = ({ handleClose, modal }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        try{
         setSubmitting(true)
         let open = new Date(content.openDate)
         let close = new Date(content.closeDate)
@@ -118,7 +119,7 @@ export const AddForm = ({ handleClose, modal }) => {
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({session:session,data:data}),              
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -143,8 +144,12 @@ export const AddForm = ({ handleClose, modal }) => {
                 console.log(result)
             }
         }
-
+    }
+    finally{
+        setSubmitting(false)
         window.location.reload()
+    }
+        
     }
 
     return (

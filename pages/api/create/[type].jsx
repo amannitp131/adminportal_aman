@@ -1,7 +1,9 @@
 import { NextApiHandler } from 'next'
 import { getSession } from 'next-auth/react'
 import { query } from '../../../lib/db'
-import { useSession } from 'next-auth/react'
+
+import { useSession } from 'next-auth/react';
+
 function generatePublicationId(email) {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
     const randomString = Math.random().toString(36).substring(2, 10); // Random alphanumeric string
@@ -10,6 +12,8 @@ function generatePublicationId(email) {
 
 
 const handler = async (req, res ) => {
+    // const { data: session, status } = useSession();
+    // const loading = status === "loading";
     let params = req.body;
     let session=params.session;
     console.log('Session:', session);
@@ -52,6 +56,7 @@ const handler = async (req, res ) => {
                 session.user.role === 4
             ) {
                 if (type == 'notice') {
+                    
                     params.attachments = JSON.stringify(params.attachments)
                     params.main_attachment = JSON.stringify(
                         params.main_attachment
@@ -67,10 +72,12 @@ const handler = async (req, res ) => {
                             params.data.openDate,
                             params.data.closeDate,
                             params.data.important,
-                            params.data.attachments,
+
+                            JSON.stringify(params.data.attachments),
                             params.data.email,
                             params.data.isVisible,
-                            params.data.main_attachment,
+                            JSON.stringify(params.data.main_attachment),
+
                             params.data.notice_type,
                             params.data.department,
                             params.data.email,
@@ -350,20 +357,41 @@ const handler = async (req, res ) => {
                     return res.json(result)
                 } else if (type == 'pg_ug_projects') {
                     let result = await query(
-                        `INSERT INTO pg_ug_projects (id,email,student_name,student_program,project_topic,start_year,completion_year) VALUES` +
-                            `(?,?,?,?,?,?,?)`,
+                        `INSERT INTO pg_ug_projects (
+                            id,
+                            email,
+                            student_name,
+                            student_program,
+                            project_title,
+                            project_thesis_ug,
+                            project_thesis_pg,
+                            roll_numbers,
+                            student_names,
+                            other_supervisors,
+                            external_supervisors,
+                            start_date,
+                            end_date,
+                            is_ongoing
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         [
                             params.id,
                             params.email,
                             params.student_name,
                             params.student_program,
-                            params.project_topic,
-                            params.start_year,
-                            params.completion_year,
+                            params.project_title,
+                            params.project_thesis_ug || null,
+                            params.project_thesis_pg || null,
+                            params.roll_numbers || null,
+                            params.student_names || null,
+                            params.other_supervisors || null,
+                            params.external_supervisors || null,
+                            params.start_date,
+                            params.end_date || null,
+                            params.is_ongoing ? 1 : 0
                         ]
-                    )
-                    return res.json(result)
-                }
+                    );
+                    return res.json(result);
+                 }
                 else if (type === 'patent') {
                     try {
                         const publicationId = generatePublicationId(params.email);
@@ -372,7 +400,7 @@ const handler = async (req, res ) => {
                             params.title,
                             params.description,
                             params.patent_date,
-                            session.user.email
+                            session.user.email                           
                         ]);
                         // Insert the patent record into the database
                         const result = await query(
