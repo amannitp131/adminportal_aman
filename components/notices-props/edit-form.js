@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import { Delete, Link } from '@material-ui/icons'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useRef, useState } from 'react'
 import {
     AddAttachments,
@@ -77,6 +77,7 @@ export const EditForm = ({ data, handleClose, modal }) => {
     }
 
     const handleSubmit = async (e) => {
+        try{
         e.preventDefault()
         setSubmitting(true)
         let open = new Date(content.openDate)
@@ -137,15 +138,17 @@ export const EditForm = ({ data, handleClose, modal }) => {
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(finaldata),
+            body: JSON.stringify({session:session,data:finaldata}),
         })
         result = await result.json()
         if (result instanceof Error) {
             console.log('Error Occured')
             console.log(result)
         }
-        console.log(result)
+        console.log(result)}finally{
+            setSubmitting(false)
         window.location.reload()
+        }
     }
 
     return (
@@ -183,6 +186,7 @@ export const EditForm = ({ data, handleClose, modal }) => {
                         main_notice={content.main_attachment}
                         delArray={deleteArray.current}
                         attachments={attachments}
+                        session={session}
                     />
                     <DialogContent>
                         <TextField

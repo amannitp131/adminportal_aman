@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import DataDisplay from '@/components/display-notices'
 import { useEntries } from '@/lib/swr-hook'
 import LoadAnimation from '@/components/loading'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import Loading from '../components/loading'
 import Sign from '../components/signin'
 import Unauthorise from '../components/unauthorise'
@@ -38,10 +38,11 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const [session, loading] = useSession()
+    // const [session, loading] = useSession()
+    const {data:session,status}=useSession()
 
-    if (typeof window !== 'undefined' && loading) return <Loading />
-
+    if (typeof window !== 'undefined' && status==="loading") return <Loading />
+    
     if (
         session &&
         (session.user.role === 1 ||

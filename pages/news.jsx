@@ -3,7 +3,7 @@ import { useEntries } from '@/lib/swr-hook'
 import LoadAnimation from '@/components/loading'
 import styled from 'styled-components'
 import DataDisplay from '@/components/display-news'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import Loading from '../components/loading'
 import Sign from '../components/signin'
 import Unauthorise from '../components/unauthorise'
@@ -19,6 +19,7 @@ export default function Page() {
     // const { entries, isLoading } = useEntries("/api/news/all");
     const [isLoading, setIsLoading] = useState(true)
     const [entries, setEntries] = useState({})
+    const { data: session, status} = useSession();
     useEffect(() => {
         fetch('/api/news/between', {
             method: 'POST',
@@ -38,8 +39,9 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const [session, loading] = useSession()
-
+   
+   
+const loading =status === "loading";
     if (typeof window !== 'undefined' && loading) return <Loading />
 
     if (session) {
