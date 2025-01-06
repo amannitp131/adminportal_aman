@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ButtonAppBar({ session }) {
+  console.log('session in header', session);
   const classes = useStyles();
   const [state, setState] = React.useState({ left: false });
 
@@ -115,8 +116,12 @@ export default function ButtonAppBar({ session }) {
             <ListItem button key="Faculty-Management">
               <ListItemIcon></ListItemIcon>
               <Link
-                href="/faculty-management"
+                 href={{
+                  pathname: '/faculty-management',
+                  query: {session:session, user: session.user.name, role: session.user.role },
+              }}
                 className={styles.link}
+                
               >
                 <ListItemText primary="Faculty Management" />
               </Link>

@@ -32,7 +32,7 @@ const Home = styled.div`
 `;
 
 const Sign = () => {
-    const { data: session, status } = useSession(); // Use `useSession` for client-side session handling
+    const { data: session } = useSession(); // Use `useSession` for client-side session handling
     const router = useRouter();
     console.log("session in signin",session)
 
