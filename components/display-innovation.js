@@ -19,7 +19,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import { AddForm } from './innovation-props/add-form'
 import { EditForm } from './innovation-props/edit-form'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { DescriptionModal } from './common-props/description-modal'
 import Filter from './common-props/filter'
 import PropTypes from 'prop-types'
